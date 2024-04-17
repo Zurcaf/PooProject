@@ -1,2 +1,14 @@
 sudo apt install openjdk-17-jre-headless
 sudo apt install openjdk-17-jdk
+source ~/.bashrcsource ~/.bashrcsource ~/.bashrc (necessario?)
+source ~/.bashrc
+
+
+
+compilar =>  javac -d bin src/*.java (wtf é isto?)
+executar => java -cp bin Main
+*/
+
+
+javac helloWorld.java
+java helloWorld
