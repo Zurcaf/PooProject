@@ -1,0 +1,36 @@
+Lab 1 and Lab 2 - week 3
+May 2nd and 3rd
+As already explained in the lectures this week, due to the holiday on May 1st falling on Wednesday, all labs on Thursday and Friday will offer the same exercise. Students should attend one (and only one) of the labs on Thursday or Friday even if they are not registered.
+ 
+UML - 2
+ 
+Goals 
+ 
+Get familiar with the following UML concepts:
+ interfaces and generic types;
+exceptions;
+objects.
+Exercise 1 
+ 
+Consider a package that makes available a class of generic queues. A generic queue is a FIFO structure (First In First Out), where we can:
+ add an element at the end of the queue;
+get the first element of the queue;
+remove an element of the queue;
+verify if the queue is empty;
+compute its length.
+ A queue is built empty, and an underflow exception is thrown whenever an element is removed from an empty queue. The package should make available limited and unlimited queues. The first should be implemented via an array initialised with the maximum number of elements. An overflow exception is thrown if one tries to add an element to a limited queue with the maximal number of elements. The second should be implemented via a linked list. All exceptions should have a cause, and this cause must be accessible outside the exception class only by modifiers and selectors.  
+ 
+a) Model in UML the class diagram, including constructors. 
+ 
+b) Present the object diagram of one unlimited queue of String, with the strings “one” and “two” inserted by this order. 
+
+Exercise 2 
+ 
+The previous package should also make available limited and unlimited priority queues. A priority element is placed at the beginning of all non-priority elements in the queue. Suppose the limited priority queue is complete, and its last element is not a priority one. In that case, when a priority element is added, the last element of the queue is removed, and a disposal exception is thrown. 
+ 
+Suggestion: Consider an interface Prior with a method isPrior that returns true if the argument is a priority element.  
+ 
+Model in UML the class diagram, including constructors.
+
+----------------------------------------------------------------
+
