@@ -9,7 +9,7 @@ Windows:
 
 Linux:
 ```sh
-.\compile.sh
+./compile.sh
 ```
 
 ## Correr o programa
