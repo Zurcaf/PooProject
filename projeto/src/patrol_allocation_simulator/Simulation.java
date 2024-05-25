@@ -1,7 +1,7 @@
 package patrol_allocation_simulator;
 
-import java.util.HashSet;
-
+import java.util.*;
+import PEC.*;
 public class Simulation {
 	int[][] timeMatrix;
 	double simDuration;
@@ -10,6 +10,7 @@ public class Simulation {
 	double deathParam;
 	double reproductionParam;
 	double mutationParam;
+	PEC pec = new PEC();
 
 	private HashSet<Individual> population = new HashSet<Individual>();
 
@@ -53,5 +54,38 @@ public class Simulation {
 		for (SimulationObserver observer : observationObservers) {
 			observer.update(observation);
 		}
+	}
+
+	public void removeIndividual(Individual oldInd){
+		Iterator<Event> value = pec.getIterator();
+		Event nextEvent;
+		while(value.hasNext()){
+			nextEvent = value.next();
+			if(!(nextEvent instanceof ObservationEvent)){
+				if(nextEvent instanceof DeathEvent){
+					DeathEvent myEvent = (DeathEvent) nextEvent;
+					if(myEvent.ind == oldInd){
+						pec.removeEvent(myEvent);
+					}
+				}
+				if(nextEvent instanceof ReproductionEvent){
+					ReproductionEvent myEvent = (ReproductionEvent) nextEvent;
+					if(myEvent.ind == oldInd){
+						pec.removeEvent(myEvent);
+					}
+				}
+				if(nextEvent instanceof MutationEvent){
+					MutationEvent myEvent = (MutationEvent) nextEvent;
+					if(myEvent.ind == oldInd){
+						pec.removeEvent(myEvent);
+					}
+				}
+				
+			}
+
+			
+			
+		}
+
 	}
 }
