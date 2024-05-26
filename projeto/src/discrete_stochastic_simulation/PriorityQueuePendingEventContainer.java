@@ -12,10 +12,10 @@ public class PriorityQueuePendingEventContainer<E extends Event> implements Pend
 		pec = new PriorityQueue<TimedEvent>();
 	}
 
-	public TimedEvent removeEvent() {
-		// TODO - implement PriorityQueuePendingEventContainer.removeEvent
-		throw new UnsupportedOperationException();
-	}
+
+	public void removeEvent(TimedEvent oldTimedEvent) {
+		pec.remove(oldTimedEvent);
+	}	
 
 	/**
 	 * 
@@ -28,8 +28,8 @@ public class PriorityQueuePendingEventContainer<E extends Event> implements Pend
 	}
 
 	public TimedEvent getNextEvent() {
-		// TODO - implement PriorityQueuePendingEventContainer.getNextEvent
-		throw new UnsupportedOperationException();
+		evCount++;
+		return pec.poll();
 	}
 
 	public int totalEventCount() {

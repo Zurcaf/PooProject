@@ -2,7 +2,7 @@ package discrete_stochastic_simulation;
 
 public interface PendingEventContainer<E extends Event> {
 
-	TimedEvent removeEvent();
+	void removeEvent(TimedEvent oldTimedEvent);
 
 	/**
 	 * 

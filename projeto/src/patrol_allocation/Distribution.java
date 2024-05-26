@@ -27,7 +27,7 @@ public class Distribution {
         } 
 	    this.array = array;
 	}
-
+    
 	public String toString() {
 		return Arrays.deepToString(array)
 			.replace("[", "{")
