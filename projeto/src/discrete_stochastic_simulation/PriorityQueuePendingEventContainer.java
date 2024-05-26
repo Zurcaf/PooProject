@@ -5,7 +5,7 @@ import java.util.*;
 public class PriorityQueuePendingEventContainer<E extends Event> implements PendingEventContainer<E> {
 
 	private Collection<TimedEvent> timedEvents;
-
+	private int evCount = 0;
 	public TimedEvent removeEvent() {
 		// TODO - implement PriorityQueuePendingEventContainer.removeEvent
 		throw new UnsupportedOperationException();
@@ -27,8 +27,7 @@ public class PriorityQueuePendingEventContainer<E extends Event> implements Pend
 	}
 
 	public int totalEventCount() {
-		// TODO - implement PriorityQueuePendingEventContainer.totalEventCount
-		throw new UnsupportedOperationException();
+		return evCount;
 	}
 
 }

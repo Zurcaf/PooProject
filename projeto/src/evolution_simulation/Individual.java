@@ -4,7 +4,7 @@ public interface Individual {
 
 	float comfort(int matrixC[][]);
 
-	void mutateInPlace();
+	public void mutateInPlace();
 
 	Individual reproduce();
 

@@ -35,8 +35,17 @@ public class Distribution {
 			.replace(", ", ",");
 	}
 
-	public int[][] array() {
+	public int[][] getArray() {
 		return array;
 	}
+
+    public void changeArray(int[][] newArray){
+        for (int i = 0; i < newArray.length; i++) {
+            array[i] = new int[newArray[i].length];
+            for (int j = 0; j < newArray[i].length; j++) {
+                array[i][j] = newArray[i][j];
+            }
+        }
+    }
 
 }
