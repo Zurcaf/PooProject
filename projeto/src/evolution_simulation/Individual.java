@@ -2,9 +2,9 @@ package evolution_simulation;
 
 public interface Individual {
 
-	float comfort();
+	float comfort(int matrixC[][]);
 
-	void mutateInPlace();
+	public void mutateInPlace();
 
 	Individual reproduce();
 
