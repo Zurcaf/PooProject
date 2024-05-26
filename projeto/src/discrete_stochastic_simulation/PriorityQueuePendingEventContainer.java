@@ -1,11 +1,17 @@
 package discrete_stochastic_simulation;
 
 import java.util.*;
+import java.util.PriorityQueue;
 
 public class PriorityQueuePendingEventContainer<E extends Event> implements PendingEventContainer<E> {
 
-	private Collection<TimedEvent> timedEvents;
+	private PriorityQueue<TimedEvent> pec;
 	private int evCount = 0;
+
+	public PriorityQueuePendingEventContainer(){
+		pec = new PriorityQueue<TimedEvent>();
+	}
+
 	public TimedEvent removeEvent() {
 		// TODO - implement PriorityQueuePendingEventContainer.removeEvent
 		throw new UnsupportedOperationException();
@@ -17,8 +23,8 @@ public class PriorityQueuePendingEventContainer<E extends Event> implements Pend
 	 * @param execution
 	 */
 	public void addEvent(float time, Event execution) {
-		// TODO - implement PriorityQueuePendingEventContainer.addEvent
-		throw new UnsupportedOperationException();
+		TimedEvent newEvent = new TimedEvent(time, execution);
+		pec.add(newEvent);
 	}
 
 	public TimedEvent getNextEvent() {

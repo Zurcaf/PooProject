@@ -5,4 +5,9 @@ public class TimedEvent {
 	Event action;
 	private float time;
 
+	public TimedEvent(float newTime, Event newAction){
+		time = newTime;
+		action = newAction;
+	}
+
 }
