@@ -12,6 +12,7 @@ public class DistributionIndividual implements Individual {
 	private Distribution distribution;
 	private float confortV;
 	Random r = new Random();
+    
 	public DistributionIndividual(Distribution distribution) {
 		this.distribution = distribution;
 	}

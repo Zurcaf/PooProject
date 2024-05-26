@@ -13,13 +13,10 @@ public class MutationEvent extends IndividualEvent {
 	 */
 	public MutationEvent(PatrolSimulation simulation, DistributionIndividual individual) {
 		super(simulation, individual);
-		// TODO - implement MutationEvent.MutationEvent
-		throw new UnsupportedOperationException();
 	}
 
 	public void execute() {
-		// TODO - implement MutationEvent.execute
-		throw new UnsupportedOperationException();
+		this.individual.mutateInPlace();
 	}
 
 }

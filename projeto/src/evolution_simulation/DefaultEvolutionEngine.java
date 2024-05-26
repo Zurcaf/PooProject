@@ -7,6 +7,7 @@ import java.util.List;
 public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEngine<I> {
 
 	private final int maxPopulation;
+	private int epidemicCount;
 
 	private HashSet<I> population = new HashSet<I>();
 
@@ -23,8 +24,7 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	 * @param individual
 	 */
 	public void removeIndividual(I individual) {
-		// TODO - implement DefaultEvolutionSimulation.removeIndividual
-		throw new UnsupportedOperationException();
+		population.remove(individual);
 	}
 
 	/**
