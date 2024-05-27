@@ -17,6 +17,7 @@ public class MutationEvent extends IndividualEvent {
 
 	public void execute() {
 		this.individual.mutateInPlace();
+		this.simulation.performMutation(this.individual);
 	}
 
 }
