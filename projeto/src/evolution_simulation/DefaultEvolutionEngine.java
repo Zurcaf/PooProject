@@ -7,9 +7,11 @@ import java.util.List;
 public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEngine<I> {
 
 	private final int maxPopulation;
-	private int epidemicCount;
 
 	private HashSet<I> population = new HashSet<I>();
+	private int epidemicCount = 0;
+
+	// TODO - epidemias
 
 	/**
 	 * 
@@ -37,7 +39,6 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 		}
 	
 		List<I> bestIndividuals = new ArrayList<I>();
-		population_iteration:
 		for (I individual : population) {
 			int i;
 			for (i = 0; i < bestIndividuals.size(); i++) {
@@ -58,8 +59,7 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	}
 
 	public int epidemicCount() {
-		// TODO - implement DefaultEvolutionSimulation.epidemicCount
-		throw new UnsupportedOperationException();
+		return epidemicCount;
 	}
 
 	/**

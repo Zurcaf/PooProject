@@ -11,8 +11,7 @@ public abstract class IndividualEvent extends SimulationEvent {
 	 */
 	public IndividualEvent(PatrolSimulation simulation, DistributionIndividual individual) {
 		super(simulation);
-		// TODO - implement IndividualEvent.IndividualEvent
-		throw new UnsupportedOperationException();
+		this.individual = individual;
 	}
 
 }

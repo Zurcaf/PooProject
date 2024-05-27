@@ -1,10 +1,6 @@
 package patrol_allocation;
 
-import evolution_simulation.*;
-
 public class MutationEvent extends IndividualEvent {
-
-	private Individual individual;
 
 	/**
 	 * 
@@ -16,8 +12,7 @@ public class MutationEvent extends IndividualEvent {
 	}
 
 	public void execute() {
-		this.individual.mutateInPlace();
-		this.simulation.performMutation(this.individual);
+		this.simulation.performMutation(individual);
 	}
 
 }

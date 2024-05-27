@@ -1,9 +1,6 @@
 package patrol_allocation;
 
-import discrete_stochastic_simulation.*;
-import evolution_simulation.*;
-
-public class DeathEvent extends IndividualEvent implements Event {
+public class DeathEvent extends IndividualEvent {
 
 	/**
 	 * 
@@ -15,7 +12,7 @@ public class DeathEvent extends IndividualEvent implements Event {
 	}
 
 	public void execute() {
-		this.simulation.performDeath(this.individual);
+		this.simulation.performDeath(individual);
 	}
 
 }

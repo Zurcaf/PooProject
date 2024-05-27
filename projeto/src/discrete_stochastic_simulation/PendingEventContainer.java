@@ -9,10 +9,11 @@ public interface PendingEventContainer<E extends Event> {
 	 * @param time
 	 * @param execution
 	 */
-	void addEvent(float time, Event execution);
+	void addEvent(double time, Event execution);
 
 	TimedEvent getNextEvent();
+	public double currentEventTime();
 
-	int totalEventCount();
+	void run();
 
 }

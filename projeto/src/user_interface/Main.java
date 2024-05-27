@@ -18,12 +18,12 @@ public class Main {
 		int patrolCount = 0;
 		int systemCount = 0;
 		int[][] timeMatrix = new int[0][0];
-		float simDuration = 0;
+		double simDuration = 0;
 		int initialPopulation = 0;
 		int maxPopulation = 0;
-		float deathParam = 0;
-		float reproductionParam = 0;
-		float mutationParam = 0;
+		double deathParam = 0;
+		double reproductionParam = 0;
+		double mutationParam = 0;
 
 		if (args[0].equals("-r")) {
 			if (args.length < 9) {
@@ -33,12 +33,12 @@ public class Main {
 
 			patrolCount = Integer.parseInt(args[1]);
 			systemCount = Integer.parseInt(args[2]);
-			simDuration = Float.parseFloat(args[3]);
+			simDuration = Double.parseDouble(args[3]);
 			initialPopulation = Integer.parseInt(args[4]);
 			maxPopulation = Integer.parseInt(args[5]);
-			deathParam = Float.parseFloat(args[6]);
-			reproductionParam = Float.parseFloat(args[7]);
-			mutationParam = Float.parseFloat(args[8]);
+			deathParam = Double.parseDouble(args[6]);
+			reproductionParam = Double.parseDouble(args[7]);
+			mutationParam = Double.parseDouble(args[8]);
 
 			timeMatrix = new int[patrolCount][systemCount];
 			Random random = new Random();
@@ -55,12 +55,12 @@ public class Main {
 
 				patrolCount = scanner.nextInt();
 				systemCount = scanner.nextInt();
-				simDuration = scanner.nextFloat();
+				simDuration = scanner.nextDouble();
 				initialPopulation = scanner.nextInt();
 				maxPopulation = scanner.nextInt();
-				deathParam = scanner.nextFloat();
-				reproductionParam = scanner.nextFloat();
-				mutationParam = scanner.nextFloat();
+				deathParam = scanner.nextDouble();
+				reproductionParam = scanner.nextDouble();
+				mutationParam = scanner.nextDouble();
 
 				timeMatrix = new int[patrolCount][systemCount];
 				for (int p = 0; p < patrolCount; p++) {

@@ -49,5 +49,7 @@ public class PrintingObserver implements SimulationObserver {
 			}
 		}
 		System.out.println(sb);
+
+		observationCount++;
 	}
 }

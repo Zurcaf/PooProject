@@ -4,15 +4,14 @@ import discrete_stochastic_simulation.Event;
 
 public abstract class SimulationEvent implements Event {
 
-	protected PatrolSimulation simulation;
+	protected final PatrolSimulation simulation;
 
 	/**
 	 * 
 	 * @param simulation
 	 */
 	public SimulationEvent(PatrolSimulation simulation) {
-		// TODO - implement SimulationEvent.SimulationEvent
-		throw new UnsupportedOperationException();
+		this.simulation = simulation;
 	}
 
 }

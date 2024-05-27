@@ -1,16 +1,21 @@
 package patrol_allocation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Distribution {
-	Random r = new Random();
-	private final int[][] array;
+	static Random r = new Random();
+	final int[][] array;
 
-	public Distribution(int patrols, int systems) {
-        int[] allocS = new int [systems]; 
-        int[] allocP = new int [patrols];
-        for (int i = 0; i<systems; i++){
+    static Distribution newRandom(int patrols, int systems) {
+        int[] allocS = new int[systems]; 
+        int[] allocP = new int[patrols];
+        for (int i = 0; i<systems; i++) {
             int systemP = r.nextInt(0,patrols);
             allocS[i] = systemP;
             allocP[systemP]++;
@@ -24,10 +29,17 @@ public class Distribution {
             int patrol = allocS[i];
             array[patrol][patrolIndexes[patrol]] = i;
             patrolIndexes[patrol]++;
-        } 
+        }
+        return new Distribution(array);
+    }
+
+	Distribution(int[][] array) {
 	    this.array = array;
 	}
     
+    /**
+     * Returns a textual representation of the distribution
+     */
 	public String toString() {
 		return Arrays.deepToString(array)
 			.replace("[", "{")
@@ -35,8 +47,15 @@ public class Distribution {
 			.replace(", ", ",");
 	}
 
-	public int[][] getArray() {
-		return array;
+    /**
+     * Returns a read-only list that associates each patrol with the set of planetary systems it patrols
+     */
+	public List<Set<Integer>> asList() {
+        ArrayList<Set<Integer>> list = new ArrayList<Set<Integer>>(array.length);
+        for (int p = 0; p < array.length; p++) {
+            list.add(p, Collections.unmodifiableSet(Arrays.stream(array[p]).boxed().collect(Collectors.toSet())));
+        }
+		return Collections.unmodifiableList(list);
 	}
 
     public void changeArray(int[][] newArray){

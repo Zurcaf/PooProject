@@ -4,14 +4,14 @@ import java.util.List;
 
 public class SimulationObservation {
 
-	private final float instant;
+	private final double instant;
 	private final int totalEventCount;
 	private final int populationCount;
 	private final int epidemicCount;
 	private final List<DistributionIndividual> bestIndividuals;
 
 	SimulationObservation(
-		float instant,
+		double instant,
 		int totalEventCount,
 		int populationCount,
 		int epidemicCount,
@@ -24,7 +24,7 @@ public class SimulationObservation {
 		this.bestIndividuals = bestIndividuals;
 	}
 
-	public float currentInstant() {
+	public double currentInstant() {
 		return instant;
 	}
 
