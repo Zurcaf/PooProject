@@ -1,8 +1,8 @@
 package patrol_allocation;
 
-import discrete_stochastic_simulation.Event;
+import discrete_stochastic_simulation.EventAction;
 
-public abstract class SimulationEvent implements Event {
+public abstract class SimulationEvent implements EventAction {
 
 	protected final PatrolSimulation simulation;
 

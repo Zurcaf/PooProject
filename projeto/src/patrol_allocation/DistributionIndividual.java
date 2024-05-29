@@ -5,20 +5,24 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import discrete_stochastic_simulation.TimedEvent;
 import evolution_simulation.*;
 
 public class DistributionIndividual implements Individual {
 
-    private final int[][] timeMatrix;
+    private final PatrolSimulation sim;
 	private Distribution distribution;
 
 	private double cachedComfort;
 
     double deathTime;
+    TimedEvent<SimulationEvent> deathEvent;
+    TimedEvent<SimulationEvent> reproductionEvent;
+    TimedEvent<SimulationEvent> mutationEvent;
 
 	Random r = new Random();
-	public DistributionIndividual(int[][] timeMatrix, Distribution distribution) {
-        this.timeMatrix = timeMatrix;
+	public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
+        this.sim = simulation;
 		this.distribution = distribution;
 	}
 
@@ -28,29 +32,29 @@ public class DistributionIndividual implements Individual {
 
 	public double comfort() {
 		int sumMin = 0;
-		for(int i=0; i<timeMatrix[0].length; i++){
-			int min = timeMatrix[0][i];
-			for(int j=1; j<timeMatrix.length; j++){
-				if(timeMatrix[j][i]<min){
-					min = timeMatrix[j][i];
+		for(int i=0; i<sim.systemCount; i++){
+			int min = sim.timeMatrix[0][i];
+			for(int j=1; j<sim.patrolCount; j++){
+				if(sim.timeMatrix[j][i]<min){
+					min = sim.timeMatrix[j][i];
 				}
 			}
 			sumMin += min;
 		}
-		double tMin = sumMin/(timeMatrix.length);
+		double tMin = sumMin/(sim.patrolCount);
 		double tz = (double) policingTime();
 		this.cachedComfort = tMin/tz;
 		return tMin/tz;
 	}
 
 	public int policingTime() {
-		int[] timeArray = new int[timeMatrix.length];
+		int[] timeArray = new int[sim.patrolCount];
 		int maxTime = 0;
 		int [][] arrayUsed = this.distribution.array;
-		for(int i=0;i<timeMatrix.length;i++){
+		for(int i=0;i<sim.patrolCount;i++){
 			timeArray[i] = 0;
 			for(int j=0;j<arrayUsed[i].length;j++){
-				timeArray[i] += timeMatrix[i][arrayUsed[i][j]];	
+				timeArray[i] += sim.timeMatrix[i][arrayUsed[i][j]];	
 			}
 			if(timeArray[i]>maxTime){
 				maxTime = timeArray[i];
@@ -163,7 +167,7 @@ public class DistributionIndividual implements Individual {
     
         // Create the child distribution
         Distribution newDistribution = new Distribution(newArray);
-		DistributionIndividual newChild = new DistributionIndividual(timeMatrix, newDistribution);
+		DistributionIndividual newChild = new DistributionIndividual(sim, newDistribution);
 		return newChild;
     }
 
@@ -180,6 +184,13 @@ public class DistributionIndividual implements Individual {
             randomNumbers[index++] = number;
         }
         return randomNumbers;
+    }
+
+
+    public void onEpidemicDeath() {
+        sim.pec.removeEvent(deathEvent);
+        sim.pec.removeEvent(reproductionEvent);
+        sim.pec.removeEvent(mutationEvent);
     }
 
 }

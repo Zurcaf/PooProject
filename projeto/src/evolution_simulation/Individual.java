@@ -4,4 +4,6 @@ public interface Individual {
 
 	double comfort();
 
+	void onEpidemicDeath();
+
 }

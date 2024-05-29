@@ -6,9 +6,10 @@ public interface EvolutionEngine<I extends Individual> {
 
 	/**
 	 * 
-	 * @param individual
+	 * @param individual the individual to add
+	 * @return whether an epidemic occurred because of this operation
 	 */
-	void addIndividual(I individual);
+	boolean addIndividual(I individual);
 
 	/**
 	 * 

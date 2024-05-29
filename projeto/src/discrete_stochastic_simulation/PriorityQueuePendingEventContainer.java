@@ -1,19 +1,20 @@
 package discrete_stochastic_simulation;
 
-import java.util.*;
 import java.util.PriorityQueue;
 
-public class PriorityQueuePendingEventContainer<E extends Event> implements PendingEventContainer<E> {
+import java.util.Iterator;
 
-	private PriorityQueue<TimedEvent> pec;
+public class PriorityQueuePendingEventContainer<A extends EventAction> implements PendingEventContainer<A>, Iterable<TimedEvent<A>> {
+
+	private PriorityQueue<TimedEvent<A>> pec;
 	private double currentEventTime = 0;
 
 	public PriorityQueuePendingEventContainer(){
-		pec = new PriorityQueue<TimedEvent>();
+		pec = new PriorityQueue<TimedEvent<A>>();
 	}
 
 
-	public void removeEvent(TimedEvent oldTimedEvent) {
+	public void removeEvent(TimedEvent<A> oldTimedEvent) {
 		pec.remove(oldTimedEvent);
 	}	
 
@@ -22,28 +23,27 @@ public class PriorityQueuePendingEventContainer<E extends Event> implements Pend
 	 * @param time
 	 * @param execution
 	 */
-	public void addEvent(double time, Event execution) {
-		TimedEvent newEvent = new TimedEvent(time, execution);
-		pec.add(newEvent);
-	}
-
-	public TimedEvent getNextEvent() {
-		return pec.poll();
+	public void addEvent(TimedEvent<A> event) {
+		pec.add(event);
 	}
 
 	public void run() {
 		while (true) {
-			TimedEvent timedEvent = pec.poll();
-			if (timedEvent == null) break;
-			patrol_allocation.DebugLogger.log("[" + timedEvent.time + "]");
-			currentEventTime = timedEvent.time;
-			timedEvent.action.execute();
+			TimedEvent<A> event = pec.poll();
+			if (event == null) break;
+			patrol_allocation.DebugLogger.log("[" + event.time + "]");
+			currentEventTime = event.time;
+			event.action.execute();
 		}
 		currentEventTime = -1;
 	}
 
 	public double currentEventTime() {
 		return currentEventTime;
+	}
+
+	public Iterator<TimedEvent<A>> iterator() {
+		return pec.iterator();
 	}
 
 }

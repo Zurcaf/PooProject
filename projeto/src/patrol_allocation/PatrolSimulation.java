@@ -9,12 +9,12 @@ public class PatrolSimulation {
 	static RandomNumberGenerator rng = RandomNumberGenerator.getInstance();
 
 	HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
-	private EvolutionEngine<DistributionIndividual> evolutionEngine;
-	private PendingEventContainer<SimulationEvent> pec;
+	EvolutionEngine<DistributionIndividual> evolutionEngine;
+	PendingEventContainer<SimulationEvent> pec;
 
-	private int[][] timeMatrix;
-	private int patrolCount;
-	private int systemCount;
+	int[][] timeMatrix;
+	int patrolCount;
+	int systemCount;
 	private double simDuration;
 	private int initialPopulation;
 	private int maxPopulation;
@@ -65,7 +65,7 @@ public class PatrolSimulation {
 	public void run() {
 		// Initialize the popoulation with randomly distributions
 		for (int i = 0; i < initialPopulation; i++) {
-			DistributionIndividual individual = new DistributionIndividual(timeMatrix, Distribution.newRandom(patrolCount, systemCount));
+			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(patrolCount, systemCount));
 			prepareIndividual(individual);
 			evolutionEngine.addIndividual(individual);
 		}
@@ -74,7 +74,7 @@ public class PatrolSimulation {
 		double observationInterval = simDuration / 20;
 		for (int i = 1; i < 20; i++) {
 			double time = observationInterval * i;
-			pec.addEvent(time, new ObservationEvent(this));
+			pec.addEvent(new TimedEvent<SimulationEvent>(time, new ObservationEvent(this)));
 		}
 
 		pec.run();
@@ -112,14 +112,22 @@ public class PatrolSimulation {
 		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
 		if (time < individual.deathTime && time < simDuration) {
 			patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " will reproduce at " + time);
-			pec.addEvent(time, new ReproductionEvent(this, individual));
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
+			individual.reproductionEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.reproductionEvent = null;
 		}
 	}
 	void scheduleMutation(DistributionIndividual individual) {
 		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * mutationParam);
 		if (time < individual.deathTime && time < simDuration) {
 			patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " will mutate at " + time);
-			pec.addEvent(time, new MutationEvent(this, individual));
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
+			individual.mutationEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.mutationEvent = null;
 		}
 	}
 
@@ -128,7 +136,11 @@ public class PatrolSimulation {
 		double deathTime = pec.currentEventTime() + rng.getExp((1 - Math.log(1 - comfort)) * deathParam);
 		individual.deathTime = deathTime;
 		if (deathTime < simDuration) {
-			pec.addEvent(deathTime, new DeathEvent(this, individual));
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));
+			individual.deathEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.deathEvent = null;
 		}
 		patrol_allocation.DebugLogger.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
 

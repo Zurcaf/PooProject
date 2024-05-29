@@ -37,14 +37,14 @@ public class PrintingObserver implements SimulationObserver {
 		sb.append(bestIndividuals.get(0).comfort());
 		sb.append("\n");
 		sb.append("    Other candidate distributions:    ");
-		for (int i = 1; i < 6; i++) {
+		for (int i = 0; i < bestIndividuals.size(); i++) {
 			sb.append(bestIndividuals.get(i).distribution());
 			sb.append(" : ");
 			sb.append(bestIndividuals.get(i).policingTime());
 			sb.append(" : ");
 			sb.append(bestIndividuals.get(i).comfort());
 			sb.append("\n");
-			if (i < 5) {
+			if (i < bestIndividuals.size()) {
 				sb.append("                                      ");
 			}
 		}

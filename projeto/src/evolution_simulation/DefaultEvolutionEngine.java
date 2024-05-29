@@ -3,22 +3,30 @@ package evolution_simulation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
+import java.util.Iterator;
 public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEngine<I> {
+
+	private static final Random random = new Random();
 
 	private final int maxPopulation;
 
 	private HashSet<I> population = new HashSet<I>();
 	private int epidemicCount = 0;
 
-	// TODO - epidemias
-
 	/**
 	 * 
 	 * @param individual
 	 */
-	public void addIndividual(I individual) {
+	public boolean addIndividual(I individual) {
 		population.add(individual);
+		if (population.size() > maxPopulation) {
+			doEpidemic();
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -60,6 +68,19 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 
 	public int epidemicCount() {
 		return epidemicCount;
+	}
+
+	private void doEpidemic() {
+		epidemicCount++;
+		List<I> luckyFew = bestIndividuals(5);
+		Iterator<I> iterator = population.iterator();
+		while (iterator.hasNext()) {
+			I individual = iterator.next();
+			// An individual who is not in the top 5 has a 1/3 probability of dying
+			if (!luckyFew.contains(individual) && random.nextInt(3) < 1) {
+				iterator.remove();
+			}
+		}
 	}
 
 	/**

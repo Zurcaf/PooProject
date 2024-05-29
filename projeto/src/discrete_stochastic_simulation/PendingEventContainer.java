@@ -1,17 +1,16 @@
 package discrete_stochastic_simulation;
 
-public interface PendingEventContainer<E extends Event> {
+public interface PendingEventContainer<A extends EventAction> {
 
-	void removeEvent(TimedEvent oldTimedEvent);
+	void removeEvent(TimedEvent<A> event);
 
 	/**
 	 * 
 	 * @param time
 	 * @param execution
 	 */
-	void addEvent(double time, Event execution);
+	void addEvent(TimedEvent<A> event);
 
-	TimedEvent getNextEvent();
 	public double currentEventTime();
 
 	void run();
