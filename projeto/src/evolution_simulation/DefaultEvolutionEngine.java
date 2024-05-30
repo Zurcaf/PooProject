@@ -49,16 +49,18 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 		List<I> bestIndividuals = new ArrayList<I>();
 		for (I individual : population) {
 			int i;
+			boolean added = false;
 			for (i = 0; i < bestIndividuals.size(); i++) {
 				if (individual.comfort() > bestIndividuals.get(i).comfort()) {
 					bestIndividuals.add(i, individual);
 					if (bestIndividuals.size() > count) {
 						bestIndividuals.remove(count);
 					}
+					added = true;
 					break;
 				}
 			}
-			if (i < count) {
+			if (!added && i < count) {
 				bestIndividuals.add(individual);
 			}
 		}
@@ -71,6 +73,7 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	}
 
 	private void doEpidemic() {
+		patrol_allocation.DebugLogger.log("Population size exceeded the maximum. Unleashing an epidemic!");
 		epidemicCount++;
 		List<I> luckyFew = bestIndividuals(5);
 		Iterator<I> iterator = population.iterator();
@@ -79,6 +82,7 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 			// An individual who is not in the top 5 has a 1/3 probability of dying
 			if (!luckyFew.contains(individual) && random.nextInt(3) < 1) {
 				iterator.remove();
+				individual.onEpidemicDeath();
 			}
 		}
 	}
