@@ -9,18 +9,24 @@ public class PatrolSimulation {
 	static RandomNumberGenerator rng = RandomNumberGenerator.getInstance();
 
 	HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
-	private EvolutionEngine<DistributionIndividual> evolutionEngine;
-	private PendingEventContainer<SimulationEvent> pec;
+	EvolutionEngine<DistributionIndividual> evolutionEngine;
+	PendingEventContainer<SimulationEvent> pec;
 
-	private int[][] timeMatrix;
-	private int patrolCount;
-	private int systemCount;
+	int[][] timeMatrix;
+	int patrolCount;
+	int systemCount;
 	private double simDuration;
 	private int initialPopulation;
 	private int maxPopulation;
 	private double deathParam;
 	private double reproductionParam;
 	private double mutationParam;
+
+	private final double observationInterval;
+	private int observationIndex = 1;
+	private TimedEvent<SimulationEvent> nextObservationEvent;
+
+	private DistributionIndividual bestIndividualEver = null;
 
 	private int totalEventCount = 0;
 
@@ -30,25 +36,27 @@ public class PatrolSimulation {
 	 */
 	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
 		if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
-			throw new Error("Matrix has 0 size");
+			throw new IllegalArgumentException("Matrix has 0 size");
 		}
 		patrolCount = timeMatrix.length;
 		systemCount = timeMatrix[0].length;
 		for (int[] row : timeMatrix) {
 			if (row.length != systemCount) {
-				throw new Error("Matrix row sizes differ");
+				throw new IllegalArgumentException("Matrix row sizes differ");
 			}
 		}
 		if (simDuration <= 0) {
-			throw new Error("The simulation duration must be a positive number");
+			throw new IllegalArgumentException("The simulation duration must be a positive number");
 		}
-		if (simDuration <= 0) {
-			throw new Error("The initial population count must be a positive integer");
+		if (initialPopulation <= 0) {
+			throw new IllegalArgumentException("The initial population count must be a positive integer");
 		}
 		if (maxPopulation <= 0) {
-			throw new Error("The maximum population count must be a positive integer");
+			throw new IllegalArgumentException("The maximum population count must be a positive integer");
 		}
-		// TODO - check other parametes
+		if (deathParam <= 0 || reproductionParam <= 0 || mutationParam <= 0) {
+			throw new IllegalArgumentException("The death, reproduction and mutation parameters must all be positive integers");
+		}
 
 		this.timeMatrix = timeMatrix;
 		this.simDuration = simDuration;
@@ -58,6 +66,8 @@ public class PatrolSimulation {
 		this.reproductionParam = reproductionParam;
 		this.mutationParam = mutationParam;
 
+		observationInterval = simDuration / 20;
+
 		this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation);
 		this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
 	}
@@ -65,17 +75,17 @@ public class PatrolSimulation {
 	public void run() {
 		// Initialize the popoulation with randomly distributions
 		for (int i = 0; i < initialPopulation; i++) {
-			DistributionIndividual individual = new DistributionIndividual(timeMatrix, Distribution.newRandom(patrolCount, systemCount));
+			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(patrolCount, systemCount));
+			if (!updateBestIndividualEver(individual)) {
+				break;
+			}
 			prepareIndividual(individual);
 			evolutionEngine.addIndividual(individual);
 		}
 
-		// Setup the observation events at the specified interval. The final observation is excluded
-		double observationInterval = simDuration / 20;
-		for (int i = 1; i < 20; i++) {
-			double time = observationInterval * i;
-			pec.addEvent(time, new ObservationEvent(this));
-		}
+		// Setup the first observation event. A new observation will be scheduled once this event fires
+		nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));
+		pec.addEvent(nextObservationEvent);
 
 		pec.run();
 
@@ -99,27 +109,63 @@ public class PatrolSimulation {
 
 	void performObservation(boolean finalObservation) {
 		SimulationObservation observation = new SimulationObservation(
-			finalObservation ? simDuration : pec.currentEventTime(),
+			this,
+			observationInterval * observationIndex,
 			totalEventCount,
 			evolutionEngine.populationCount(),
 			evolutionEngine.epidemicCount(),
-			evolutionEngine.bestIndividuals(6)
+			evolutionEngine.bestUniqueIndividuals(6)
 		);
 		emitObservation(observation);
+		observationIndex++;
+		if (!finalObservation) {
+			double time = observationInterval * observationIndex;
+			if (time < simDuration) {
+				nextObservationEvent = new TimedEvent<SimulationEvent>(time, new ObservationEvent(this));
+				pec.addEvent(nextObservationEvent);
+			}
+		}
+	}
+
+	/**
+	 * @return whether the simulation should continue
+	 */
+	private boolean updateBestIndividualEver(DistributionIndividual individual) {
+		if (bestIndividualEver == null || individual.comfort() > bestIndividualEver.comfort()) {
+			bestIndividualEver = individual;
+		}
+		if (individual.comfort() >= 1) {
+			patrol_allocation.Debug.log("Found individual with comfort = 1. Stopping the simulation!");
+			pec.stop();
+			return false;
+		}
+		return true;
+	}
+
+	public DistributionIndividual bestIndividualEver() {
+		return bestIndividualEver;
 	}
 
 	void scheduleReproduction(DistributionIndividual individual) {
 		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
 		if (time < individual.deathTime && time < simDuration) {
-			patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " will reproduce at " + time);
-			pec.addEvent(time, new ReproductionEvent(this, individual));
+			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
+			individual.reproductionEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.reproductionEvent = null;
 		}
 	}
 	void scheduleMutation(DistributionIndividual individual) {
 		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * mutationParam);
 		if (time < individual.deathTime && time < simDuration) {
-			patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " will mutate at " + time);
-			pec.addEvent(time, new MutationEvent(this, individual));
+			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
+			individual.mutationEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.mutationEvent = null;
 		}
 	}
 
@@ -128,9 +174,13 @@ public class PatrolSimulation {
 		double deathTime = pec.currentEventTime() + rng.getExp((1 - Math.log(1 - comfort)) * deathParam);
 		individual.deathTime = deathTime;
 		if (deathTime < simDuration) {
-			pec.addEvent(deathTime, new DeathEvent(this, individual));
+			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));
+			individual.deathEvent = event;
+			pec.addEvent(event);
+		} else {
+			individual.deathEvent = null;
 		}
-		patrol_allocation.DebugLogger.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
+		patrol_allocation.Debug.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
 
 		scheduleReproduction(individual);
 		scheduleMutation(individual);
@@ -141,9 +191,12 @@ public class PatrolSimulation {
 	 * @param individual
 	 */
 	void performDeath(DistributionIndividual individual) {
-		patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " died");
+		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " died");
 		totalEventCount++;
 		evolutionEngine.removeIndividual(individual);
+		if (evolutionEngine.populationCount() == 0) {
+			onPopulationExtinct();
+		}
 	}
 
 	/**
@@ -153,10 +206,12 @@ public class PatrolSimulation {
 	void performReproduction(DistributionIndividual individual) {
 		totalEventCount++;
 		DistributionIndividual offspring = individual.reproduce();
-		patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
-		prepareIndividual(offspring);
-		evolutionEngine.addIndividual(offspring);
-		scheduleReproduction(offspring);
+		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
+		if (updateBestIndividualEver(offspring)) {
+			prepareIndividual(offspring);
+			evolutionEngine.addIndividual(offspring);
+			scheduleReproduction(offspring);
+		}
 	}
 
 	/**
@@ -164,10 +219,19 @@ public class PatrolSimulation {
 	 * @param individual
 	 */
 	void performMutation(DistributionIndividual individual) {
-		patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " mutated");
+		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
 		totalEventCount++;
 		individual.mutateInPlace();
-		scheduleMutation(individual);
+		if (updateBestIndividualEver(individual)) {
+			scheduleMutation(individual);
+		}
+	}
+
+
+	void onPopulationExtinct() {
+		patrol_allocation.Debug.log("The population has become extinct!");
+		// Removing the next observation event allows the simulation event loop to exit
+		pec.removeEvent(nextObservationEvent);
 	}
 
 }

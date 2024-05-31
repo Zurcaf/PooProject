@@ -3,22 +3,30 @@ package evolution_simulation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
-public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEngine<I> {
+import java.util.Iterator;
+public class DefaultEvolutionEngine<I extends Individual<I>> implements EvolutionEngine<I> {
+
+	private static final Random random = new Random();
 
 	private final int maxPopulation;
 
 	private HashSet<I> population = new HashSet<I>();
 	private int epidemicCount = 0;
 
-	// TODO - epidemias
-
 	/**
 	 * 
 	 * @param individual
 	 */
-	public void addIndividual(I individual) {
+	public boolean addIndividual(I individual) {
 		population.add(individual);
+		if (population.size() > maxPopulation) {
+			doEpidemic();
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -30,24 +38,28 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	}
 
 	/**
-	 * 
+	 * Gets the {@code count} best individuals with unique solutions, as determined by {@code Individual.isSolutionEqual(I other)}.
 	 * @param count
 	 */
-	public List<I> bestIndividuals(int count) {
+	public List<I> bestUniqueIndividuals(int count) {
 		if (count > population.size()) {
 			count = population.size();
 		}
 	
 		List<I> bestIndividuals = new ArrayList<I>();
+		populationLoop:
 		for (I individual : population) {
 			int i;
 			for (i = 0; i < bestIndividuals.size(); i++) {
+				if (bestIndividuals.get(i).isSolutionEqual(individual)) {
+					continue populationLoop;
+				}
 				if (individual.comfort() > bestIndividuals.get(i).comfort()) {
 					bestIndividuals.add(i, individual);
 					if (bestIndividuals.size() > count) {
 						bestIndividuals.remove(count);
 					}
-					break;
+					continue populationLoop;
 				}
 			}
 			if (i < count) {
@@ -60,6 +72,21 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 
 	public int epidemicCount() {
 		return epidemicCount;
+	}
+
+	private void doEpidemic() {
+		patrol_allocation.Debug.log("Population size exceeded the maximum. Unleashing an epidemic!");
+		epidemicCount++;
+		List<I> luckyFew = bestUniqueIndividuals(5);
+		Iterator<I> iterator = population.iterator();
+		while (iterator.hasNext()) {
+			I individual = iterator.next();
+			// An individual who is not in the top 5 has a 1/3 probability of dying
+			if (!luckyFew.contains(individual) && random.nextInt(3) < 1) {
+				iterator.remove();
+				individual.onEpidemicDeath();
+			}
+		}
 	}
 
 	/**

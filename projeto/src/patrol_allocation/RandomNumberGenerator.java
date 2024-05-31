@@ -12,7 +12,9 @@ class RandomNumberGenerator {
 	}
 
 	double getExp(double m) {
+		if (!Double.isFinite(m)) throw new IllegalArgumentException("Non-finite mean value for the exponential distribution");
 		double next = random.nextDouble();
-		return -m*Math.log(1.0-next);
+		double result = -m*Math.log(1.0-next);
+		return result;
 	}
 }

@@ -1,6 +1,6 @@
 package discrete_stochastic_simulation;
 
-public interface Event {
+public interface EventAction {
 
 	void execute();
 

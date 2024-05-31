@@ -9,8 +9,9 @@ public class PrintingObserver implements SimulationObserver {
 	static int observationCount = 0;
 
 	public void onObservation(SimulationObservation observation) {
-		List<DistributionIndividual> bestIndividuals = observation.bestIndividuals();
-		
+		DistributionIndividual bestIndividualEver = observation.simulation().bestIndividualEver();
+		List<DistributionIndividual> bestIndividualsAlive = observation.bestIndividuals();
+
 		StringBuilder sb = new StringBuilder(1000);
 		sb.append("Observation ");
 		sb.append(observationCount + 1);
@@ -28,27 +29,29 @@ public class PrintingObserver implements SimulationObserver {
 		sb.append(observation.epidemicCount());
 		sb.append("\n");
 		sb.append("    Best distribution of the patrols: ");
-		sb.append(bestIndividuals.get(0).distribution());
+		sb.append(bestIndividualEver.distribution());
 		sb.append("\n");
 		sb.append("    Empire policing time:             ");
-		sb.append(bestIndividuals.get(0).policingTime());
+		sb.append(bestIndividualEver.policingTime());
 		sb.append("\n");
 		sb.append("    Comfort:                          ");
-		sb.append(bestIndividuals.get(0).comfort());
+		sb.append(bestIndividualEver.comfort());
 		sb.append("\n");
 		sb.append("    Other candidate distributions:    ");
-		for (int i = 1; i < 6; i++) {
-			sb.append(bestIndividuals.get(i).distribution());
+		for (int i = 0; i < bestIndividualsAlive.size(); i++) {
+			sb.append(bestIndividualsAlive.get(i).distribution());
 			sb.append(" : ");
-			sb.append(bestIndividuals.get(i).policingTime());
+			sb.append(bestIndividualsAlive.get(i).policingTime());
 			sb.append(" : ");
-			sb.append(bestIndividuals.get(i).comfort());
+			sb.append(bestIndividualsAlive.get(i).comfort());
 			sb.append("\n");
-			if (i < 5) {
+			if (i < bestIndividualsAlive.size()) {
 				sb.append("                                      ");
 			}
 		}
 		System.out.println(sb);
+
+		patrol_allocation.Debug.check(bestIndividualEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
 
 		observationCount++;
 	}

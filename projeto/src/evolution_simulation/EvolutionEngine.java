@@ -2,13 +2,14 @@ package evolution_simulation;
 
 import java.util.List;
 
-public interface EvolutionEngine<I extends Individual> {
+public interface EvolutionEngine<I extends Individual<I>> {
 
 	/**
 	 * 
-	 * @param individual
+	 * @param individual the individual to add
+	 * @return whether an epidemic occurred because of this operation
 	 */
-	void addIndividual(I individual);
+	boolean addIndividual(I individual);
 
 	/**
 	 * 
@@ -20,7 +21,7 @@ public interface EvolutionEngine<I extends Individual> {
 	 * 
 	 * @param count
 	 */
-	List<I> bestIndividuals(int count);
+	List<I> bestUniqueIndividuals(int count);
 
 	int epidemicCount();
 
