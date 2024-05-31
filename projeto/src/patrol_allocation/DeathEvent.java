@@ -1,18 +1,25 @@
 package patrol_allocation;
 
+/**
+ * Represents an event where an individual in the patrol simulation dies.
+ * This event triggers the death of a specified individual in the simulation.
+ */
 public class DeathEvent extends IndividualEvent {
 
-	/**
-	 * 
-	 * @param simulation
-	 * @param individual
-	 */
-	public DeathEvent(PatrolSimulation simulation, DistributionIndividual individual) {
-		super(simulation, individual);
-	}
+    /**
+     * Constructs a new DeathEvent with the specified simulation and individual.
+     *
+     * @param simulation The simulation in which the event occurs.
+     * @param individual The individual who is affected by the death event.
+     */
+    public DeathEvent(PatrolSimulation simulation, DistributionIndividual individual) {
+        super(simulation, individual);
+    }
 
-	public void execute() {
-		this.simulation.performDeath(individual);
-	}
-
+    /**
+     * Executes the death event, triggering the simulation to perform the death operation on the individual.
+     */
+    public void execute() {
+        this.simulation.performDeath(individual);
+    }
 }
