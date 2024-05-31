@@ -63,7 +63,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
 		return maxTime;
 	}
 
-	public void mutateInPlace(){
+	void mutateInPlace(){
         int patrols = this.distribution.array.length;
 //        int systems = array[0].length;
         int patrolChanged = r.nextInt(0, patrols);
@@ -106,7 +106,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         this.distribution.changeArray(newArray);        
     }
 
-	public DistributionIndividual reproduce() {
+	DistributionIndividual reproduce() {
         int patrols = this.distribution.array.length;
         int m = 0; // Total number of systems
         int[] sysCounter = new int[patrols]; // Number of systems in each patrol
