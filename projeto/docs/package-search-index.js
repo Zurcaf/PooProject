@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"discrete_stochastic_simulation"},{"l":"evolution_simulation"},{"l":"patrol_allocation"},{"l":"user_interface"}];updateSearchResults();
