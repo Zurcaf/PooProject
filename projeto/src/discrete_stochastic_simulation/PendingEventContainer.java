@@ -11,8 +11,9 @@ public interface PendingEventContainer<A extends EventAction> {
 	 */
 	void addEvent(TimedEvent<A> event);
 
-	public double currentEventTime();
+	double currentEventTime();
 
 	void run();
+	void stop();
 
 }

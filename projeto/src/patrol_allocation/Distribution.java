@@ -67,4 +67,15 @@ public class Distribution {
         }
     }
 
+    public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Distribution))
+			return false;
+        Distribution otherDistribution = (Distribution) obj;
+        return Arrays.deepEquals(this.array, otherDistribution.array);
+    }
+
 }

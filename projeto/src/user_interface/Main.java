@@ -2,6 +2,7 @@ package user_interface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -52,6 +53,7 @@ public class Main {
 			File file = new File(args[1]);
 			try {
 				Scanner scanner = new Scanner(file);
+				scanner.useLocale(Locale.US);
 
 				patrolCount = scanner.nextInt();
 				systemCount = scanner.nextInt();

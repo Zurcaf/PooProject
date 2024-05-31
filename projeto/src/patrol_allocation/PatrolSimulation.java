@@ -76,9 +76,11 @@ public class PatrolSimulation {
 		// Initialize the popoulation with randomly distributions
 		for (int i = 0; i < initialPopulation; i++) {
 			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(patrolCount, systemCount));
+			if (!updateBestIndividualEver(individual)) {
+				break;
+			}
 			prepareIndividual(individual);
 			evolutionEngine.addIndividual(individual);
-			updateBestIndividualEver(individual);
 		}
 
 		// Setup the first observation event. A new observation will be scheduled once this event fires
@@ -112,7 +114,7 @@ public class PatrolSimulation {
 			totalEventCount,
 			evolutionEngine.populationCount(),
 			evolutionEngine.epidemicCount(),
-			evolutionEngine.bestIndividuals(6)
+			evolutionEngine.bestUniqueIndividuals(6)
 		);
 		emitObservation(observation);
 		observationIndex++;
@@ -125,11 +127,19 @@ public class PatrolSimulation {
 		}
 	}
 
-
-	private void updateBestIndividualEver(DistributionIndividual individual) {
+	/**
+	 * @return whether the simulation should continue
+	 */
+	private boolean updateBestIndividualEver(DistributionIndividual individual) {
 		if (bestIndividualEver == null || individual.comfort() > bestIndividualEver.comfort()) {
 			bestIndividualEver = individual;
 		}
+		if (individual.comfort() >= 1) {
+			patrol_allocation.DebugLogger.log("Found individual with comfort = 1. Stopping the simulation!");
+			pec.stop();
+			return false;
+		}
+		return true;
 	}
 
 	public DistributionIndividual bestIndividualEver() {
@@ -197,10 +207,11 @@ public class PatrolSimulation {
 		totalEventCount++;
 		DistributionIndividual offspring = individual.reproduce();
 		patrol_allocation.DebugLogger.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
-		prepareIndividual(offspring);
-		evolutionEngine.addIndividual(offspring);
-		updateBestIndividualEver(individual);
-		scheduleReproduction(offspring);
+		if (updateBestIndividualEver(offspring)) {
+			prepareIndividual(offspring);
+			evolutionEngine.addIndividual(offspring);
+			scheduleReproduction(offspring);
+		}
 	}
 
 	/**

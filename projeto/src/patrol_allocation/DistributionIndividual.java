@@ -8,7 +8,7 @@ import java.util.Set;
 import discrete_stochastic_simulation.TimedEvent;
 import evolution_simulation.*;
 
-public class DistributionIndividual implements Individual {
+public class DistributionIndividual implements Individual<DistributionIndividual> {
 
     private final PatrolSimulation sim;
 	private Distribution distribution;
@@ -186,6 +186,9 @@ public class DistributionIndividual implements Individual {
         return randomNumbers;
     }
 
+    public boolean isSolutionEqual(DistributionIndividual other) {
+        return this.distribution.equals(other.distribution);
+    }
 
     public void onEpidemicDeath() {
         patrol_allocation.DebugLogger.log("Individual " + this.hashCode() + " was killed by an epidemic");

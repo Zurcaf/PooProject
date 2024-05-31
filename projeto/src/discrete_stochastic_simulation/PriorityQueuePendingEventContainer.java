@@ -6,12 +6,10 @@ import java.util.Iterator;
 
 public class PriorityQueuePendingEventContainer<A extends EventAction> implements PendingEventContainer<A>, Iterable<TimedEvent<A>> {
 
-	private PriorityQueue<TimedEvent<A>> pec;
+	private PriorityQueue<TimedEvent<A>> pec = new PriorityQueue<TimedEvent<A>>();
 	private double currentEventTime = 0;
 
-	public PriorityQueuePendingEventContainer(){
-		pec = new PriorityQueue<TimedEvent<A>>();
-	}
+	private boolean stopped = false;
 
 
 	public void removeEvent(TimedEvent<A> oldTimedEvent) {
@@ -28,7 +26,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 	}
 
 	public void run() {
-		while (true) {
+		while (!stopped) {
 			TimedEvent<A> event = pec.poll();
 			if (event == null) break;
 			patrol_allocation.DebugLogger.log("\n[" + event.time + "]");
@@ -37,6 +35,10 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 			patrol_allocation.DebugLogger.log("Next 10 events left in queue: " + Arrays.deepToString(pec.stream().limit(10).map(ev -> ev.time + " " + ev.action.getClass().getName()).toArray()));
 		}
 		currentEventTime = -1;
+	}
+
+	public void stop() {
+		stopped = true;
 	}
 
 	public double currentEventTime() {

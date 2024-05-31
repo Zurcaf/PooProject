@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import java.util.Iterator;
-public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEngine<I> {
+public class DefaultEvolutionEngine<I extends Individual<I>> implements EvolutionEngine<I> {
 
 	private static final Random random = new Random();
 
@@ -38,29 +38,31 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	}
 
 	/**
-	 * 
+	 * Gets the {@code count} best individuals with unique solutions, as determined by {@code Individual.isSolutionEqual(I other)}.
 	 * @param count
 	 */
-	public List<I> bestIndividuals(int count) {
+	public List<I> bestUniqueIndividuals(int count) {
 		if (count > population.size()) {
 			count = population.size();
 		}
 	
 		List<I> bestIndividuals = new ArrayList<I>();
+		populationLoop:
 		for (I individual : population) {
 			int i;
-			boolean added = false;
 			for (i = 0; i < bestIndividuals.size(); i++) {
+				if (bestIndividuals.get(i).isSolutionEqual(individual)) {
+					continue populationLoop;
+				}
 				if (individual.comfort() > bestIndividuals.get(i).comfort()) {
 					bestIndividuals.add(i, individual);
 					if (bestIndividuals.size() > count) {
 						bestIndividuals.remove(count);
 					}
-					added = true;
-					break;
+					continue populationLoop;
 				}
 			}
-			if (!added && i < count) {
+			if (i < count) {
 				bestIndividuals.add(individual);
 			}
 		}
@@ -75,7 +77,7 @@ public class DefaultEvolutionEngine<I extends Individual> implements EvolutionEn
 	private void doEpidemic() {
 		patrol_allocation.DebugLogger.log("Population size exceeded the maximum. Unleashing an epidemic!");
 		epidemicCount++;
-		List<I> luckyFew = bestIndividuals(5);
+		List<I> luckyFew = bestUniqueIndividuals(5);
 		Iterator<I> iterator = population.iterator();
 		while (iterator.hasNext()) {
 			I individual = iterator.next();

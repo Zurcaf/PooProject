@@ -2,7 +2,7 @@ package evolution_simulation;
 
 import java.util.List;
 
-public interface EvolutionEngine<I extends Individual> {
+public interface EvolutionEngine<I extends Individual<I>> {
 
 	/**
 	 * 
@@ -21,7 +21,7 @@ public interface EvolutionEngine<I extends Individual> {
 	 * 
 	 * @param count
 	 */
-	List<I> bestIndividuals(int count);
+	List<I> bestUniqueIndividuals(int count);
 
 	int epidemicCount();
 
