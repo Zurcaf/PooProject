@@ -22,19 +22,19 @@ public interface PendingEventContainer<A extends EventAction> {
     void addEvent(TimedEvent<A> event);
 
     /**
-     * Returns the current event time.
+     * Returns the time of the event currently being executed.
      *
      * @return The time of the current event.
      */
     double currentEventTime();
 
     /**
-     * Starts the execution of events in the container.
+     * Starts the execution of events. This function should return whenever there are no longer any events left to process or when the {@link PendingEventContainer#stop()} method is called.
      */
     void run();
 
     /**
-     * Stops the execution of events in the container.
+     * Stops the execution of events. No events should be processed after this function is called.
      */
     void stop();
 }

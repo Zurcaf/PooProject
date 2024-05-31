@@ -40,12 +40,12 @@ public class PatrolSimulation {
      *
      * @param timeMatrix The time matrix representing the time required for patrols to reach each system.
      * @param simDuration The total duration of the simulation.
-     * @param initialPopulation The initial population of patrol distributions.
-     * @param maxPopulation The maximum population of patrol distributions.
-     * @param deathParam The parameter controlling the death rate of individuals.
-     * @param reproductionParam The parameter controlling the reproduction rate of individuals.
-     * @param mutationParam The parameter controlling the mutation rate of individuals.
-     * @param random The random number generator used for stochastic events.
+     * @param initialPopulation The number of individuals in the initial population.
+     * @param maxPopulation The maximum number of individuals in the population.
+     * @param deathParam Parameter controlling the death rate of individuals (μ).
+     * @param reproductionParam Parameter controlling the reproduction rate of individuals (ρ).
+     * @param mutationParam Parameter controlling the mutation rate of individuals (δ).
+     * @param random The random number generator to be used by all operations which require randomness in this simulation.
      */
     public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
         if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
@@ -208,7 +208,7 @@ public class PatrolSimulation {
      *
      * @param individual The individual to reproduce.
      */
-    void scheduleReproduction(DistributionIndividual individual) {
+    private void scheduleReproduction(DistributionIndividual individual) {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
         if (time < individual.deathTime && time < simDuration) {
             patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
@@ -225,7 +225,7 @@ public class PatrolSimulation {
      *
      * @param individual The individual to mutate.
      */
-    void scheduleMutation(DistributionIndividual individual) {
+    private void scheduleMutation(DistributionIndividual individual) {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
         if (time < individual.deathTime && time < simDuration) {
             patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
@@ -242,7 +242,7 @@ public class PatrolSimulation {
      *
      * @param individual The individual to prepare.
      */
-    void prepareIndividual(DistributionIndividual individual) {
+    private void prepareIndividual(DistributionIndividual individual) {
         double comfort = individual.comfort();
         double deathTime = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(1 - comfort)) * deathParam);
         individual.deathTime = deathTime;
@@ -260,7 +260,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Performs the death event for the specified individual.
+     * Removes an individual from the population. Called by {@link DeathEvent}.
      *
      * @param individual The individual that dies.
      */
@@ -274,7 +274,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Performs the reproduction event for the specified individual.
+     * Reproduces the specified individual and schedules a new reproduction event. Called by {@link ReproductionEvent}.
      *
      * @param individual The individual that reproduces.
      */
@@ -289,7 +289,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Performs the mutation event for the specified individual.
+     * Mutates the specified individual and schedules a new mutation event. Called by {@link MutationEvent}.
      *
      * @param individual The individual that mutates.
      */

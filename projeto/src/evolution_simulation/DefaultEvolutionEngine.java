@@ -10,6 +10,14 @@ import java.util.Iterator;
  * DefaultEvolutionEngine is an implementation of the EvolutionEngine interface.
  * It manages a population of individuals and enforces a maximum population limit
  * through periodic epidemics.
+ * 
+ * Individuals can be added to the population and removed from the population at any
+ * time. Whe the population size grows above the maximum size, an epidemic happens.
+ * Except for the 5 best individuals with unique solutions (as detemined by
+ * {@link Individual#isSolutionEqual(Individual)}), each individual has a 1/3
+ * probability of getting killed by an epidemic when one happens, in which case the
+ * {@link Individual#onEpidemicDeath()} method of the individuals who die is called.
+ * The 5 best individuals always survive the epidemic.
  *
  * @param <I> The type of individuals managed by this evolution engine, which must implement the {@link Individual} interface.
  */
@@ -103,7 +111,7 @@ public class DefaultEvolutionEngine<I extends Individual<I>> implements Evolutio
     }
 
     /**
-     * Triggers an epidemic to reduce the population size. Individuals who are not among the top 5 unique best individuals
+     * Triggers an epidemic to reduce the population size. Individuals who are not among the top 5 best unique individuals
      * have a 1/3 probability of being removed from the population.
      */
     private void doEpidemic() {

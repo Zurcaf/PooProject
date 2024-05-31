@@ -35,8 +35,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 
     /**
      * Starts the execution of events in the container. Events are executed in order of their scheduled times.
-     * The execution stops when there are no more events or when the container is stopped.
-     * This method logs the current event time and the next 10 events left in the queue.
+     * The execution stops (and this method returns) when there are no more events or when the simulation is stopped using the {@link PriorityQueuePendingEventContainer#stop()} method is called.
      */
     public void run() {
         while (!stopped) {
@@ -58,7 +57,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
     }
 
     /**
-     * Returns the current event time.
+     * Returns the time of the event currently being executed.
      *
      * @return The time of the current event.
      */
