@@ -12,21 +12,22 @@ public class PatrolSimulation {
 	EvolutionEngine<DistributionIndividual> evolutionEngine;
 	PendingEventContainer<SimulationEvent> pec;
 
-	int[][] timeMatrix;
-	int patrolCount;
-	int systemCount;
-	private double simDuration;
-	private int initialPopulation;
-	private int maxPopulation;
-	private double deathParam;
-	private double reproductionParam;
-	private double mutationParam;
+	final int patrolCount;
+	final int systemCount;
+	final int[][] timeMatrix;
+	// final int policingTimeLowerBound;
+	private final double simDuration;
+	private final int initialPopulation;
+	private final int maxPopulation;
+	private final double deathParam;
+	private final double reproductionParam;
+	private final double mutationParam;
 
 	private final double observationInterval;
 	private int observationIndex = 1;
 	private TimedEvent<SimulationEvent> nextObservationEvent;
 
-	private DistributionIndividual bestIndividualEver = null;
+	private Distribution bestDistributionEver = null;
 
 	private int totalEventCount = 0;
 
@@ -75,8 +76,8 @@ public class PatrolSimulation {
 	public void run() {
 		// Initialize the popoulation with randomly distributions
 		for (int i = 0; i < initialPopulation; i++) {
-			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(patrolCount, systemCount));
-			if (!updateBestIndividualEver(individual)) {
+			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(this));
+			if (updateBestDistributionEver(individual.distribution())) {
 				break;
 			}
 			prepareIndividual(individual);
@@ -128,22 +129,22 @@ public class PatrolSimulation {
 	}
 
 	/**
-	 * @return whether the simulation should continue
+	 * @return whether the simulation should stop
 	 */
-	private boolean updateBestIndividualEver(DistributionIndividual individual) {
-		if (bestIndividualEver == null || individual.comfort() > bestIndividualEver.comfort()) {
-			bestIndividualEver = individual;
+	private boolean updateBestDistributionEver(Distribution distribution) {
+		if (bestDistributionEver == null || distribution.comfort() > bestDistributionEver.comfort()) {
+			bestDistributionEver = distribution;
 		}
-		if (individual.comfort() >= 1) {
+		if (distribution.comfort() >= 1) {
 			patrol_allocation.Debug.log("Found individual with comfort = 1. Stopping the simulation!");
 			pec.stop();
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
-	public DistributionIndividual bestIndividualEver() {
-		return bestIndividualEver;
+	public Distribution bestDistributionEver() {
+		return bestDistributionEver;
 	}
 
 	void scheduleReproduction(DistributionIndividual individual) {
@@ -207,11 +208,10 @@ public class PatrolSimulation {
 		totalEventCount++;
 		DistributionIndividual offspring = individual.reproduce();
 		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
-		if (updateBestIndividualEver(offspring)) {
-			prepareIndividual(offspring);
-			evolutionEngine.addIndividual(offspring);
-			scheduleReproduction(offspring);
-		}
+		if (updateBestDistributionEver(offspring.distribution())) return;
+		prepareIndividual(offspring);
+		evolutionEngine.addIndividual(offspring);
+		scheduleReproduction(offspring);
 	}
 
 	/**
@@ -221,10 +221,11 @@ public class PatrolSimulation {
 	void performMutation(DistributionIndividual individual) {
 		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
 		totalEventCount++;
+		System.err.print("--------------- "+individual.comfort());
 		individual.mutateInPlace();
-		if (updateBestIndividualEver(individual)) {
-			scheduleMutation(individual);
-		}
+		System.err.println(" "+individual.comfort());
+		if (updateBestDistributionEver(individual.distribution())) return;
+		scheduleMutation(individual);
 	}
 
 

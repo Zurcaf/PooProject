@@ -9,7 +9,7 @@ public class PrintingObserver implements SimulationObserver {
 	static int observationCount = 0;
 
 	public void onObservation(SimulationObservation observation) {
-		DistributionIndividual bestIndividualEver = observation.simulation().bestIndividualEver();
+		Distribution bestDistributionEver = observation.simulation().bestDistributionEver();
 		List<DistributionIndividual> bestIndividualsAlive = observation.bestIndividuals();
 
 		StringBuilder sb = new StringBuilder(1000);
@@ -29,21 +29,22 @@ public class PrintingObserver implements SimulationObserver {
 		sb.append(observation.epidemicCount());
 		sb.append("\n");
 		sb.append("    Best distribution of the patrols: ");
-		sb.append(bestIndividualEver.distribution());
+		sb.append(bestDistributionEver);
 		sb.append("\n");
 		sb.append("    Empire policing time:             ");
-		sb.append(bestIndividualEver.policingTime());
+		sb.append(bestDistributionEver.policingTime());
 		sb.append("\n");
 		sb.append("    Comfort:                          ");
-		sb.append(bestIndividualEver.comfort());
+		sb.append(bestDistributionEver.comfort());
 		sb.append("\n");
 		sb.append("    Other candidate distributions:    ");
 		for (int i = 0; i < bestIndividualsAlive.size(); i++) {
-			sb.append(bestIndividualsAlive.get(i).distribution());
+			Distribution distribution = bestIndividualsAlive.get(i).distribution();
+			sb.append(distribution);
 			sb.append(" : ");
-			sb.append(bestIndividualsAlive.get(i).policingTime());
+			sb.append(distribution.policingTime());
 			sb.append(" : ");
-			sb.append(bestIndividualsAlive.get(i).comfort());
+			sb.append(distribution.comfort());
 			sb.append("\n");
 			if (i < bestIndividualsAlive.size()) {
 				sb.append("                                      ");
@@ -51,7 +52,7 @@ public class PrintingObserver implements SimulationObserver {
 		}
 		System.out.println(sb);
 
-		patrol_allocation.Debug.check(bestIndividualEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
+		patrol_allocation.Debug.check(bestDistributionEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
 
 		observationCount++;
 	}

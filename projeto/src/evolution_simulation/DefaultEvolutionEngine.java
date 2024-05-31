@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.Iterator;
 public class DefaultEvolutionEngine<I extends Individual<I>> implements EvolutionEngine<I> {
 
-	private static final Random random = new Random();
+	private static final Random random = new Random(7);
 
 	private final int maxPopulation;
 

@@ -13,14 +13,12 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     private final PatrolSimulation sim;
 	private Distribution distribution;
 
-	private double cachedComfort;
-
     double deathTime;
     TimedEvent<SimulationEvent> deathEvent;
     TimedEvent<SimulationEvent> reproductionEvent;
     TimedEvent<SimulationEvent> mutationEvent;
 
-	Random r = new Random();
+	static Random r = new Random(7);
 	public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
         this.sim = simulation;
 		this.distribution = distribution;
@@ -31,36 +29,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
 	}
 
 	public double comfort() {
-		int sumMin = 0;
-		for(int i=0; i<sim.systemCount; i++){
-			int min = sim.timeMatrix[0][i];
-			for(int j=1; j<sim.patrolCount; j++){
-				if(sim.timeMatrix[j][i]<min){
-					min = sim.timeMatrix[j][i];
-				}
-			}
-			sumMin += min;
-		}
-		double tMin = sumMin/(sim.patrolCount);
-		double tz = (double) policingTime();
-		this.cachedComfort = tMin/tz;
-		return tMin/tz;
-	}
-
-	public int policingTime() {
-		int[] timeArray = new int[sim.patrolCount];
-		int maxTime = 0;
-		int [][] arrayUsed = this.distribution.array;
-		for(int i=0;i<sim.patrolCount;i++){
-			timeArray[i] = 0;
-			for(int j=0;j<arrayUsed[i].length;j++){
-				timeArray[i] += sim.timeMatrix[i][arrayUsed[i][j]];	
-			}
-			if(timeArray[i]>maxTime){
-				maxTime = timeArray[i];
-			}
-		}
-		return maxTime;
+        return distribution.comfort();
 	}
 
 	void mutateInPlace(){
@@ -69,7 +38,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         int patrolChanged = r.nextInt(0, patrols);
         while(this.distribution.array[patrolChanged].length==0){
             patrolChanged = r.nextInt(0, patrols);
-        }            
+        }
         int systemChanged = r.nextInt(0, this.distribution.array[patrolChanged].length);
         int newPatrol=-1;
         while(newPatrol==-1 || newPatrol==patrolChanged){
@@ -103,7 +72,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
                 }
             }
         }
-        this.distribution.changeArray(newArray);        
+        this.distribution = new Distribution(sim, newArray);        
     }
 
 	DistributionIndividual reproduce() {
@@ -118,7 +87,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         }
     
         // Generate altered systems
-        int difSystems = (int) Math.floor((1 - this.cachedComfort) * m);
+        int difSystems = (int) Math.floor((1 - this.distribution.comfort()) * m);
         // System.out.println("difSystems: " + difSystems);
         // System.out.println("confort: " + cachedComfort);
 
@@ -166,7 +135,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         }
     
         // Create the child distribution
-        Distribution newDistribution = new Distribution(newArray);
+        Distribution newDistribution = new Distribution(sim, newArray);
 		DistributionIndividual newChild = new DistributionIndividual(sim, newDistribution);
 		return newChild;
     }

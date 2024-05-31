@@ -4,7 +4,7 @@ import java.util.Random;
 class RandomNumberGenerator {
 	private static final RandomNumberGenerator instance = new RandomNumberGenerator();
 
-	final Random random = new Random();
+	final Random random = new Random(7);
 
 	private RandomNumberGenerator() {}
 	public static RandomNumberGenerator getInstance() {
