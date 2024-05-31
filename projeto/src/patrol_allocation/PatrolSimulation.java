@@ -15,7 +15,7 @@ public class PatrolSimulation {
 	final int patrolCount;
 	final int systemCount;
 	final int[][] timeMatrix;
-	// final int policingTimeLowerBound;
+	final double policingTimeLowerBound;
 	private final double simDuration;
 	private final int initialPopulation;
 	private final int maxPopulation;
@@ -71,6 +71,26 @@ public class PatrolSimulation {
 
 		this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation);
 		this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
+
+		policingTimeLowerBound = calculatePolicingTimeLowerBound();
+	}
+
+	/**
+	 * Calculates a lower bound for the best possible policing time, used to calculate the comfort of the individuals.
+	 * @return a lower bound for the best possible policing time
+	 */
+	private double calculatePolicingTimeLowerBound() {
+		int sumMin = 0;
+		for(int i=0; i<systemCount; i++){
+			int min = timeMatrix[0][i];
+			for(int j=1; j<patrolCount; j++){
+				if(timeMatrix[j][i]<min){
+					min = timeMatrix[j][i];
+				}
+			}
+			sumMin += min;
+		}
+		return sumMin / patrolCount;
 	}
 
 	public void run() {
@@ -221,7 +241,6 @@ public class PatrolSimulation {
 	void performMutation(DistributionIndividual individual) {
 		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
 		totalEventCount++;
-		System.err.print("--------------- "+individual.comfort());
 		individual.mutateInPlace();
 		System.err.println(" "+individual.comfort());
 		if (updateBestDistributionEver(individual.distribution())) return;
