@@ -191,7 +191,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     }
 
     public void onEpidemicDeath() {
-        patrol_allocation.DebugLogger.log("Individual " + this.hashCode() + " was killed by an epidemic");
+        patrol_allocation.Debug.log("Individual " + this.hashCode() + " was killed by an epidemic");
         sim.pec.removeEvent(deathEvent);
         sim.pec.removeEvent(reproductionEvent);
         sim.pec.removeEvent(mutationEvent);

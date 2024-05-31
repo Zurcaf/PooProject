@@ -29,10 +29,10 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 		while (!stopped) {
 			TimedEvent<A> event = pec.poll();
 			if (event == null) break;
-			patrol_allocation.DebugLogger.log("\n[" + event.time + "]");
+			patrol_allocation.Debug.log("\n[" + event.time + "]");
 			currentEventTime = event.time;
 			event.action.execute();
-			patrol_allocation.DebugLogger.log("Next 10 events left in queue: " + Arrays.deepToString(pec.stream().limit(10).map(ev -> ev.time + " " + ev.action.getClass().getName()).toArray()));
+			patrol_allocation.Debug.log("Next 10 events left in queue: " + Arrays.deepToString(pec.stream().limit(10).map(ev -> ev.time + " " + ev.action.getClass().getName()).toArray()));
 		}
 		currentEventTime = -1;
 	}

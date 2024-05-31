@@ -75,7 +75,7 @@ public class DefaultEvolutionEngine<I extends Individual<I>> implements Evolutio
 	}
 
 	private void doEpidemic() {
-		patrol_allocation.DebugLogger.log("Population size exceeded the maximum. Unleashing an epidemic!");
+		patrol_allocation.Debug.log("Population size exceeded the maximum. Unleashing an epidemic!");
 		epidemicCount++;
 		List<I> luckyFew = bestUniqueIndividuals(5);
 		Iterator<I> iterator = population.iterator();
