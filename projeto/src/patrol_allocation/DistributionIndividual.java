@@ -2,7 +2,6 @@ package patrol_allocation;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import discrete_stochastic_simulation.TimedEvent;
@@ -33,7 +32,6 @@ public class DistributionIndividual implements Individual<DistributionIndividual
 
 	void mutateInPlace(){
         int patrols = this.distribution.array.length;
-//        int systems = array[0].length;
         int patrolChanged = sim.random.nextInt(0, patrols);
         while(this.distribution.array[patrolChanged].length==0){
             patrolChanged = sim.random.nextInt(0, patrols);

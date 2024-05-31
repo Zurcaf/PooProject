@@ -245,7 +245,6 @@ public class PatrolSimulation {
 		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
 		totalEventCount++;
 		individual.mutateInPlace();
-		System.err.println(" "+individual.comfort());
 		if (updateBestDistributionEver(individual.distribution())) return;
 		scheduleMutation(individual);
 	}

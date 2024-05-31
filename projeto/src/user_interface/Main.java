@@ -11,11 +11,7 @@ import patrol_allocation.PatrolSimulation;
 public class Main {
 
 	public static void main(String[] args) {
-		if (!args[0].equals("-r") && !args[0].equals("-f")) {
-			System.err.println("Expected first argument to be either -r or -f");
-			return;
-		}
-
+		boolean parametersSet = false;
 		int patrolCount = 0;
 		int systemCount = 0;
 		int[][] timeMatrix = new int[0][0];
@@ -26,59 +22,89 @@ public class Main {
 		double reproductionParam = 0;
 		double mutationParam = 0;
 
-		if (args[0].equals("-r")) {
-			if (args.length < 9) {
-				System.err.println("Expected 8 arguments after -r.");
-				return;
-			}
+		long seed = 0;
 
-			patrolCount = Integer.parseInt(args[1]);
-			systemCount = Integer.parseInt(args[2]);
-			simDuration = Double.parseDouble(args[3]);
-			initialPopulation = Integer.parseInt(args[4]);
-			maxPopulation = Integer.parseInt(args[5]);
-			deathParam = Double.parseDouble(args[6]);
-			reproductionParam = Double.parseDouble(args[7]);
-			mutationParam = Double.parseDouble(args[8]);
-
-			timeMatrix = new int[patrolCount][systemCount];
-			Random random = new Random();
-			for (int p = 0; p < patrolCount; p++) {
-				for (int s = 0; s < systemCount; s++) {
-					timeMatrix[p][s] = random.nextInt(1, 11);
+		for (int argIndex = 0; argIndex < args.length;) {
+			if (args[argIndex].equals("-r")) {
+				if (args.length - argIndex < 9) {
+					System.err.println("Expected 8 arguments after -r.");
+					return;
 				}
-			}
+				parametersSet = true;
 
-		} else if (args[0].equals("-f")) {
-			File file = new File(args[1]);
-			try {
-				Scanner scanner = new Scanner(file);
-				scanner.useLocale(Locale.US);
-
-				patrolCount = scanner.nextInt();
-				systemCount = scanner.nextInt();
-				simDuration = scanner.nextDouble();
-				initialPopulation = scanner.nextInt();
-				maxPopulation = scanner.nextInt();
-				deathParam = scanner.nextDouble();
-				reproductionParam = scanner.nextDouble();
-				mutationParam = scanner.nextDouble();
-
+				patrolCount = Integer.parseInt(args[argIndex + 1]);
+				systemCount = Integer.parseInt(args[argIndex + 2]);
+				simDuration = Double.parseDouble(args[argIndex + 3]);
+				initialPopulation = Integer.parseInt(args[argIndex + 4]);
+				maxPopulation = Integer.parseInt(args[argIndex + 5]);
+				deathParam = Double.parseDouble(args[argIndex + 6]);
+				reproductionParam = Double.parseDouble(args[argIndex + 7]);
+				mutationParam = Double.parseDouble(args[argIndex + 8]);
+	
 				timeMatrix = new int[patrolCount][systemCount];
+				Random random = new Random();
 				for (int p = 0; p < patrolCount; p++) {
 					for (int s = 0; s < systemCount; s++) {
-						timeMatrix[p][s] = scanner.nextInt();
+						timeMatrix[p][s] = random.nextInt(1, 11);
 					}
 				}
 
-				scanner.close();
-			} catch (FileNotFoundException e) {
-				System.err.println("Couldn't find file " + args[1]);
+				argIndex += 8;
+			} else if (args[argIndex].equals("-f")) {
+				if (args.length - argIndex < 1) {
+					System.err.println("Expected 1 argument after -f.");
+					return;
+				}
+				parametersSet = true;
+
+				File file = new File(args[argIndex + 1]);
+				try {
+					Scanner scanner = new Scanner(file);
+					scanner.useLocale(Locale.US);
+	
+					patrolCount = scanner.nextInt();
+					systemCount = scanner.nextInt();
+					simDuration = scanner.nextDouble();
+					initialPopulation = scanner.nextInt();
+					maxPopulation = scanner.nextInt();
+					deathParam = scanner.nextDouble();
+					reproductionParam = scanner.nextDouble();
+					mutationParam = scanner.nextDouble();
+	
+					timeMatrix = new int[patrolCount][systemCount];
+					for (int p = 0; p < patrolCount; p++) {
+						for (int s = 0; s < systemCount; s++) {
+							timeMatrix[p][s] = scanner.nextInt();
+						}
+					}
+	
+					scanner.close();
+				} catch (FileNotFoundException e) {
+					System.err.println("Couldn't find file " + args[1]);
+					return;
+				}
+
+				argIndex += 2;
+			} else if (args[argIndex].equals("-seed")) {
+				seed = Long.parseLong(args[argIndex + 1]);
+
+				argIndex += 2;
+			} else {
+				System.err.println("Unrecognized option \"" + args[argIndex] + "\".");
 				return;
 			}
 		}
 
-		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam, new Random());
+		if (!parametersSet) {
+			System.err.println(
+				"Usage: java -jar project.jar [ -seed <seed> ] ( -f <filename> | -r <number of patrols> <number of planetary systems> <final instant> <initial population> <maximum population> <death parameter> <reproduction parameter> <mutation parameter> )"
+			);
+			return;
+		}
+
+		System.out.println(patrolCount + " " + seed);
+
+		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam, seed == 0 ? new Random() : new Random(seed));
 		PrintingObserver observer = new PrintingObserver();
 		sim.addObserver(observer);
 		sim.run();
