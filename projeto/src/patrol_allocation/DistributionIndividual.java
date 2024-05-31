@@ -8,42 +8,64 @@ import java.util.Set;
 import discrete_stochastic_simulation.TimedEvent;
 import evolution_simulation.*;
 
+/**
+ * Represents an individual in the patrol simulation, defined by a specific distribution of planetary systems.
+ */
 public class DistributionIndividual implements Individual<DistributionIndividual> {
 
     private final PatrolSimulation sim;
-	private Distribution distribution;
+    private Distribution distribution;
 
     double deathTime;
     TimedEvent<SimulationEvent> deathEvent;
     TimedEvent<SimulationEvent> reproductionEvent;
     TimedEvent<SimulationEvent> mutationEvent;
 
-	public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
+    /**
+     * Constructs a new DistributionIndividual with the specified simulation and distribution.
+     *
+     * @param simulation The patrol simulation in which this individual exists.
+     * @param distribution The distribution defining this individual.
+     */
+    public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
         this.sim = simulation;
-		this.distribution = distribution;
-	}
+        this.distribution = distribution;
+    }
 
-	public Distribution distribution() {
-		return distribution;
-	}
+    /**
+     * Returns the distribution of this individual.
+     *
+     * @return The distribution of this individual.
+     */
+    public Distribution distribution() {
+        return distribution;
+    }
 
-	public double comfort() {
+    /**
+     * Returns the comfort level of this individual based on its distribution.
+     *
+     * @return The comfort level of this individual.
+     */
+    public double comfort() {
         return distribution.comfort();
-	}
+    }
 
-	void mutateInPlace(){
+    /**
+     * Mutates this individual's distribution in place, changing the patrol assignment of one system.
+     */
+    void mutateInPlace() {
         int patrols = this.distribution.array.length;
-//        int systems = array[0].length;
+        // int systems = array[0].length;
         int patrolChanged = sim.random.nextInt(0, patrols);
-        while(this.distribution.array[patrolChanged].length==0){
+        while (this.distribution.array[patrolChanged].length == 0) {
             patrolChanged = sim.random.nextInt(0, patrols);
         }
         int systemChanged = sim.random.nextInt(0, this.distribution.array[patrolChanged].length);
-        int newPatrol=-1;
-        while(newPatrol==-1 || newPatrol==patrolChanged){
+        int newPatrol = -1;
+        while (newPatrol == -1 || newPatrol == patrolChanged) {
             newPatrol = sim.random.nextInt(0, patrols);
-            if(newPatrol == patrolChanged){
-                newPatrol=-1;
+            if (newPatrol == patrolChanged) {
+                newPatrol = -1;
             }
         }
         int[][] newArray = new int[patrols][];
@@ -71,10 +93,15 @@ public class DistributionIndividual implements Individual<DistributionIndividual
                 }
             }
         }
-        this.distribution = new Distribution(sim, newArray);        
+        this.distribution = new Distribution(sim, newArray);
     }
 
-	DistributionIndividual reproduce() {
+    /**
+     * Creates a new individual by reproducing this individual with mutations in the distribution.
+     *
+     * @return The new individual created by reproduction.
+     */
+    DistributionIndividual reproduce() {
         int patrols = this.distribution.array.length;
         int m = 0; // Total number of systems
         int[] sysCounter = new int[patrols]; // Number of systems in each patrol
@@ -86,7 +113,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         }
     
         // Generate altered systems
-        int difSystems = (int) Math.floor((1 - this.distribution.comfort()) * m);
+        int difSystems = (int) Math.floor((1 - this.distribution.comfort()) * m);        
         // System.out.println("difSystems: " + difSystems);
         // System.out.println("confort: " + cachedComfort);
 
@@ -135,11 +162,18 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     
         // Create the child distribution
         Distribution newDistribution = new Distribution(sim, newArray);
-		DistributionIndividual newChild = new DistributionIndividual(sim, newDistribution);
-		return newChild;
+        DistributionIndividual newChild = new DistributionIndividual(sim, newDistribution);
+        return newChild;
     }
 
-	private int[] generateUniqueRandomNumbers(int difSystems, int upperBound) {
+    /**
+     * Generates an array of unique random numbers within the specified upper bound.
+     *
+     * @param difSystems The number of unique random numbers to generate.
+     * @param upperBound The upper bound for the random numbers.
+     * @return An array of unique random numbers.
+     */
+    private int[] generateUniqueRandomNumbers(int difSystems, int upperBound) {
         Set<Integer> uniqueNumbers = new HashSet<>();
         while (uniqueNumbers.size() < difSystems) {
             int randomNumber = sim.random.nextInt(upperBound);
@@ -154,10 +188,20 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         return randomNumbers;
     }
 
+    /**
+     * Determines if this individual's solution is equal to another individual's solution.
+     *
+     * @param other The other individual to compare with.
+     * @return true if the solutions are equal, false otherwise.
+     */
     public boolean isSolutionEqual(DistributionIndividual other) {
         return this.distribution.equals(other.distribution);
     }
 
+    /**
+     * Handles the death of this individual during an epidemic.
+     * Logs the death and removes the individual's events from the simulation.
+     */
     public void onEpidemicDeath() {
         patrol_allocation.Debug.log("Individual " + this.hashCode() + " was killed by an epidemic");
         sim.pec.removeEvent(deathEvent);
@@ -167,5 +211,4 @@ public class DistributionIndividual implements Individual<DistributionIndividual
             sim.onPopulationExtinct();
         }
     }
-
 }

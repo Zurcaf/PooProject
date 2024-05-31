@@ -4,257 +4,310 @@ import evolution_simulation.*;
 import java.util.*;
 import discrete_stochastic_simulation.*;
 
+/**
+ * Represents a patrol simulation where a population of individuals (patrol distributions) evolves over time.
+ */
 public class PatrolSimulation {
 
-	final Random random;
-	final RandomHelper randomHelper;
+    final Random random;
+    final RandomHelper randomHelper;
 
-	final HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
-	final EvolutionEngine<DistributionIndividual> evolutionEngine;
-	final PendingEventContainer<SimulationEvent> pec;
+    final HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
+    final EvolutionEngine<DistributionIndividual> evolutionEngine;
+    final PendingEventContainer<SimulationEvent> pec;
 
-	final int patrolCount;
-	final int systemCount;
-	final int[][] timeMatrix;
-	final double policingTimeLowerBound;
-	private final double simDuration;
-	private final int initialPopulation;
-	private final int maxPopulation;
-	private final double deathParam;
-	private final double reproductionParam;
-	private final double mutationParam;
+    final int patrolCount;
+    final int systemCount;
+    final int[][] timeMatrix;
+    final double policingTimeLowerBound;
+    private final double simDuration;
+    private final int initialPopulation;
+    private final int maxPopulation;
+    private final double deathParam;
+    private final double reproductionParam;
+    private final double mutationParam;
 
-	private final double observationInterval;
-	private int observationIndex = 1;
-	private TimedEvent<SimulationEvent> nextObservationEvent;
+    private final double observationInterval;
+    private int observationIndex = 1;
+    private TimedEvent<SimulationEvent> nextObservationEvent;
 
-	private Distribution bestDistributionEver = null;
+    private Distribution bestDistributionEver = null;
 
-	private int totalEventCount = 0;
+    private int totalEventCount = 0;
 
-	/**
-	 * 
-	 * TODO - document parameters
-	 */
-	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
-		if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
-			throw new IllegalArgumentException("Matrix has 0 size");
-		}
-		patrolCount = timeMatrix.length;
-		systemCount = timeMatrix[0].length;
-		for (int[] row : timeMatrix) {
-			if (row.length != systemCount) {
-				throw new IllegalArgumentException("Matrix row sizes differ");
-			}
-		}
-		if (simDuration <= 0) {
-			throw new IllegalArgumentException("The simulation duration must be a positive number");
-		}
-		if (initialPopulation <= 0) {
-			throw new IllegalArgumentException("The initial population count must be a positive integer");
-		}
-		if (maxPopulation <= 0) {
-			throw new IllegalArgumentException("The maximum population count must be a positive integer");
-		}
-		if (deathParam <= 0 || reproductionParam <= 0 || mutationParam <= 0) {
-			throw new IllegalArgumentException("The death, reproduction and mutation parameters must all be positive integers");
-		}
+    /**
+     * Constructs a new PatrolSimulation with the specified parameters.
+     *
+     * @param timeMatrix The time matrix representing the time required for patrols to reach each system.
+     * @param simDuration The total duration of the simulation.
+     * @param initialPopulation The initial population of patrol distributions.
+     * @param maxPopulation The maximum population of patrol distributions.
+     * @param deathParam The parameter controlling the death rate of individuals.
+     * @param reproductionParam The parameter controlling the reproduction rate of individuals.
+     * @param mutationParam The parameter controlling the mutation rate of individuals.
+     * @param random The random number generator used for stochastic events.
+     */
+    public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
+        if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
+            throw new IllegalArgumentException("Matrix has 0 size");
+        }
+        patrolCount = timeMatrix.length;
+        systemCount = timeMatrix[0].length;
+        for (int[] row : timeMatrix) {
+            if (row.length != systemCount) {
+                throw new IllegalArgumentException("Matrix row sizes differ");
+            }
+        }
+        if (simDuration <= 0) {
+            throw new IllegalArgumentException("The simulation duration must be a positive number");
+        }
+        if (initialPopulation <= 0) {
+            throw new IllegalArgumentException("The initial population count must be a positive integer");
+        }
+        if (maxPopulation <= 0) {
+            throw new IllegalArgumentException("The maximum population count must be a positive integer");
+        }
+        if (deathParam <= 0 || reproductionParam <= 0 || mutationParam <= 0) {
+            throw new IllegalArgumentException("The death, reproduction and mutation parameters must all be positive integers");
+        }
 
-		this.timeMatrix = timeMatrix;
-		this.simDuration = simDuration;
-		this.initialPopulation = initialPopulation;
-		this.maxPopulation = maxPopulation;
-		this.deathParam = deathParam;
-		this.reproductionParam = reproductionParam;
-		this.mutationParam = mutationParam;
-		this.policingTimeLowerBound = calculatePolicingTimeLowerBound();
+        this.timeMatrix = timeMatrix;
+        this.simDuration = simDuration;
+        this.initialPopulation = initialPopulation;
+        this.maxPopulation = maxPopulation;
+        this.deathParam = deathParam;
+        this.reproductionParam = reproductionParam;
+        this.mutationParam = mutationParam;
+        this.policingTimeLowerBound = calculatePolicingTimeLowerBound();
 
-		this.observationInterval = simDuration / 20;
+        this.observationInterval = simDuration / 20;
 
-		this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation, random);
-		this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
+        this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation, random);
+        this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
 
-		this.random = random;
-		this.randomHelper = new RandomHelper(random);
-	}
+        this.random = random;
+        this.randomHelper = new RandomHelper(random);
+    }
 
-	/**
-	 * Calculates a lower bound for the best possible policing time, used to calculate the comfort of the individuals.
-	 * @return a lower bound for the best possible policing time
-	 */
-	private double calculatePolicingTimeLowerBound() {
-		int sumMin = 0;
-		for(int i=0; i<systemCount; i++){
-			int min = timeMatrix[0][i];
-			for(int j=1; j<patrolCount; j++){
-				if(timeMatrix[j][i]<min){
-					min = timeMatrix[j][i];
-				}
-			}
-			sumMin += min;
-		}
-		return sumMin / patrolCount;
-	}
+    /**
+     * Calculates a lower bound for the best possible policing time, used to calculate the comfort of the individuals.
+     * @return A lower bound for the best possible policing time.
+     */
+    private double calculatePolicingTimeLowerBound() {
+        int sumMin = 0;
+        for (int i = 0; i < systemCount; i++) {
+            int min = timeMatrix[0][i];
+            for (int j = 1; j < patrolCount; j++) {
+                if (timeMatrix[j][i] < min) {
+                    min = timeMatrix[j][i];
+                }
+            }
+            sumMin += min;
+        }
+        return sumMin / patrolCount;
+    }
 
-	public void run() {
-		// Initialize the popoulation with randomly distributions
-		for (int i = 0; i < initialPopulation; i++) {
-			DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(this));
-			if (updateBestDistributionEver(individual.distribution())) {
-				break;
-			}
-			prepareIndividual(individual);
-			evolutionEngine.addIndividual(individual);
-		}
+    /**
+     * Runs the simulation, initializing the population and executing events.
+     */
+    public void run() {
+        // Initialize the population with random distributions
+        for (int i = 0; i < initialPopulation; i++) {
+            DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(this));
+            if (updateBestDistributionEver(individual.distribution())) {
+                break;
+            }
+            prepareIndividual(individual);
+            evolutionEngine.addIndividual(individual);
+        }
 
-		// Setup the first observation event. A new observation will be scheduled once this event fires
-		nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));
-		pec.addEvent(nextObservationEvent);
+        // Setup the first observation event. A new observation will be scheduled once this event fires
+        nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));
+        pec.addEvent(nextObservationEvent);
 
-		pec.run();
+        pec.run();
 
-		// Perform the final observation
-		performObservation(true);
-	}
+        // Perform the final observation
+        performObservation(true);
+    }
 
-	private void emitObservation(SimulationObservation observation) {
-		for (SimulationObserver observer : observers) {
-			observer.onObservation(observation);
-		}
-	}
+    /**
+     * Emits an observation to all registered observers.
+     *
+     * @param observation The observation to be emitted.
+     */
+    private void emitObservation(SimulationObservation observation) {
+        for (SimulationObserver observer : observers) {
+            observer.onObservation(observation);
+        }
+    }
 
-	/**
-	 * Adds an observer which will be notified of simulation observations.
-	 * @param observer
-	 */
-	public void addObserver(SimulationObserver observer) {
-		observers.add(observer);
-	}
+    /**
+     * Adds an observer which will be notified of simulation observations.
+     *
+     * @param observer The observer to be added.
+     */
+    public void addObserver(SimulationObserver observer) {
+        observers.add(observer);
+    }
 
-	void performObservation(boolean finalObservation) {
-		SimulationObservation observation = new SimulationObservation(
-			this,
-			observationInterval * observationIndex,
-			totalEventCount,
-			evolutionEngine.populationCount(),
-			evolutionEngine.epidemicCount(),
-			evolutionEngine.bestUniqueIndividuals(6)
-		);
-		emitObservation(observation);
-		observationIndex++;
-		if (!finalObservation) {
-			double time = observationInterval * observationIndex;
-			if (time < simDuration) {
-				nextObservationEvent = new TimedEvent<SimulationEvent>(time, new ObservationEvent(this));
-				pec.addEvent(nextObservationEvent);
-			}
-		}
-	}
+    /**
+     * Performs an observation, collecting data about the current state of the simulation.
+     *
+     * @param finalObservation Indicates if this is the final observation of the simulation.
+     */
+    void performObservation(boolean finalObservation) {
+        SimulationObservation observation = new SimulationObservation(
+            this,
+            observationInterval * observationIndex,
+            totalEventCount,
+            evolutionEngine.populationCount(),
+            evolutionEngine.epidemicCount(),
+            evolutionEngine.bestUniqueIndividuals(6)
+        );
+        emitObservation(observation);
+        observationIndex++;
+        if (!finalObservation) {
+            double time = observationInterval * observationIndex;
+            if (time < simDuration) {
+                nextObservationEvent = new TimedEvent<SimulationEvent>(time, new ObservationEvent(this));
+                pec.addEvent(nextObservationEvent);
+            }
+        }
+    }
 
-	/**
-	 * @return whether the simulation should stop
-	 */
-	private boolean updateBestDistributionEver(Distribution distribution) {
-		if (bestDistributionEver == null || distribution.comfort() > bestDistributionEver.comfort()) {
-			bestDistributionEver = distribution;
-		}
-		if (distribution.comfort() >= 1) {
-			patrol_allocation.Debug.log("Found individual with comfort = 1. Stopping the simulation!");
-			pec.stop();
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Updates the best distribution ever found in the simulation.
+     *
+     * @param distribution The distribution to be compared.
+     * @return true if the distribution has a comfort level of 1, indicating the simulation should stop.
+     */
+    private boolean updateBestDistributionEver(Distribution distribution) {
+        if (bestDistributionEver == null || distribution.comfort() > bestDistributionEver.comfort()) {
+            bestDistributionEver = distribution;
+        }
+        if (distribution.comfort() >= 1) {
+            patrol_allocation.Debug.log("Found individual with comfort = 1. Stopping the simulation!");
+            pec.stop();
+            return true;
+        }
+        return false;
+    }
 
-	public Distribution bestDistributionEver() {
-		return bestDistributionEver;
-	}
+    /**
+     * Returns the best distribution ever found in the simulation.
+     *
+     * @return The best distribution ever found.
+     */
+    public Distribution bestDistributionEver() {
+        return bestDistributionEver;
+    }
 
-	void scheduleReproduction(DistributionIndividual individual) {
-		double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
-		if (time < individual.deathTime && time < simDuration) {
-			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
-			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
-			individual.reproductionEvent = event;
-			pec.addEvent(event);
-		} else {
-			individual.reproductionEvent = null;
-		}
-	}
-	void scheduleMutation(DistributionIndividual individual) {
-		double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
-		if (time < individual.deathTime && time < simDuration) {
-			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
-			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
-			individual.mutationEvent = event;
-			pec.addEvent(event);
-		} else {
-			individual.mutationEvent = null;
-		}
-	}
+    /**
+     * Schedules a reproduction event for the specified individual.
+     *
+     * @param individual The individual to reproduce.
+     */
+    void scheduleReproduction(DistributionIndividual individual) {
+        double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
+        if (time < individual.deathTime && time < simDuration) {
+            patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
+            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
+            individual.reproductionEvent = event;
+            pec.addEvent(event);
+        } else {
+            individual.reproductionEvent = null;
+        }
+    }
 
-	void prepareIndividual(DistributionIndividual individual) {
-		double comfort = individual.comfort();
-		double deathTime = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(1 - comfort)) * deathParam);
-		individual.deathTime = deathTime;
-		if (deathTime < simDuration) {
-			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));
-			individual.deathEvent = event;
-			pec.addEvent(event);
-		} else {
-			individual.deathEvent = null;
-		}
-		patrol_allocation.Debug.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
+    /**
+     * Schedules a mutation event for the specified individual.
+     *
+     * @param individual The individual to mutate.
+     */
+    void scheduleMutation(DistributionIndividual individual) {
+        double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
+        if (time < individual.deathTime && time < simDuration) {
+            patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
+            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
+            individual.mutationEvent = event;
+            pec.addEvent(event);
+        } else {
+            individual.mutationEvent = null;
+        }
+    }
 
-		scheduleReproduction(individual);
-		scheduleMutation(individual);
-	}
+    /**
+     * Prepares an individual by scheduling its death, reproduction, and mutation events.
+     *
+     * @param individual The individual to prepare.
+     */
+    void prepareIndividual(DistributionIndividual individual) {
+        double comfort = individual.comfort();
+        double deathTime = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(1 - comfort)) * deathParam);
+        individual.deathTime = deathTime;
+        if (deathTime < simDuration) {
+            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));
+            individual.deathEvent = event;
+            pec.addEvent(event);
+        } else {
+            individual.deathEvent = null;
+        }
+        patrol_allocation.Debug.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
 
-	/**
-	 * 
-	 * @param individual
-	 */
-	void performDeath(DistributionIndividual individual) {
-		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " died");
-		totalEventCount++;
-		evolutionEngine.removeIndividual(individual);
-		if (evolutionEngine.populationCount() == 0) {
-			onPopulationExtinct();
-		}
-	}
+        scheduleReproduction(individual);
+        scheduleMutation(individual);
+    }
 
-	/**
-	 * 
-	 * @param individual
-	 */
-	void performReproduction(DistributionIndividual individual) {
-		totalEventCount++;
-		DistributionIndividual offspring = individual.reproduce();
-		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
-		if (updateBestDistributionEver(offspring.distribution())) return;
-		prepareIndividual(offspring);
-		evolutionEngine.addIndividual(offspring);
-		scheduleReproduction(offspring);
-	}
+    /**
+     * Performs the death event for the specified individual.
+     *
+     * @param individual The individual that dies.
+     */
+    void performDeath(DistributionIndividual individual) {
+        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " died");
+        totalEventCount++;
+        evolutionEngine.removeIndividual(individual);
+        if (evolutionEngine.populationCount() == 0) {
+            onPopulationExtinct();
+        }
+    }
 
-	/**
-	 * 
-	 * @param individual
-	 */
-	void performMutation(DistributionIndividual individual) {
-		patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
-		totalEventCount++;
-		individual.mutateInPlace();
-		System.err.println(" "+individual.comfort());
-		if (updateBestDistributionEver(individual.distribution())) return;
-		scheduleMutation(individual);
-	}
+    /**
+     * Performs the reproduction event for the specified individual.
+     *
+     * @param individual The individual that reproduces.
+     */
+    void performReproduction(DistributionIndividual individual) {
+        totalEventCount++;
+        DistributionIndividual offspring = individual.reproduce();
+        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
+        if (updateBestDistributionEver(offspring.distribution())) return;
+        prepareIndividual(offspring);
+        evolutionEngine.addIndividual(offspring);
+        scheduleReproduction(offspring);
+    }
 
+    /**
+     * Performs the mutation event for the specified individual.
+     *
+     * @param individual The individual that mutates.
+     */
+    void performMutation(DistributionIndividual individual) {
+        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
+        totalEventCount++;
+        individual.mutateInPlace();
+        System.err.println(" " + individual.comfort());
+        if (updateBestDistributionEver(individual.distribution())) return;
+        scheduleMutation(individual);
+    }
 
-	void onPopulationExtinct() {
-		patrol_allocation.Debug.log("The population has become extinct!");
-		// Removing the next observation event allows the simulation event loop to exit
-		pec.removeEvent(nextObservationEvent);
-	}
-
+    /**
+     * Handles the event when the population becomes extinct.
+     */
+    void onPopulationExtinct() {
+        patrol_allocation.Debug.log("The population has become extinct!");
+        // Removing the next observation event allows the simulation event loop to exit
+        pec.removeEvent(nextObservationEvent);
+    }
 }
