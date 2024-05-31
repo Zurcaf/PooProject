@@ -18,7 +18,6 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     TimedEvent<SimulationEvent> reproductionEvent;
     TimedEvent<SimulationEvent> mutationEvent;
 
-	static Random r = new Random(7);
 	public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
         this.sim = simulation;
 		this.distribution = distribution;
@@ -35,14 +34,14 @@ public class DistributionIndividual implements Individual<DistributionIndividual
 	void mutateInPlace(){
         int patrols = this.distribution.array.length;
 //        int systems = array[0].length;
-        int patrolChanged = r.nextInt(0, patrols);
+        int patrolChanged = sim.random.nextInt(0, patrols);
         while(this.distribution.array[patrolChanged].length==0){
-            patrolChanged = r.nextInt(0, patrols);
+            patrolChanged = sim.random.nextInt(0, patrols);
         }
-        int systemChanged = r.nextInt(0, this.distribution.array[patrolChanged].length);
+        int systemChanged = sim.random.nextInt(0, this.distribution.array[patrolChanged].length);
         int newPatrol=-1;
         while(newPatrol==-1 || newPatrol==patrolChanged){
-            newPatrol = r.nextInt(0, patrols);
+            newPatrol = sim.random.nextInt(0, patrols);
             if(newPatrol == patrolChanged){
                 newPatrol=-1;
             }
@@ -113,7 +112,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
             int newPatrol;
             // Find a new patrol for the altered system
             do {
-                newPatrol = r.nextInt(patrols);
+                newPatrol = sim.random.nextInt(patrols);
             } while (Arrays.binarySearch(newArray[newPatrol], altSystems[i]) >= 0); // Check if the system is already in the new patrol
     
             // Remove the system from the old patrol
@@ -143,7 +142,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
 	private int[] generateUniqueRandomNumbers(int difSystems, int upperBound) {
         Set<Integer> uniqueNumbers = new HashSet<>();
         while (uniqueNumbers.size() < difSystems) {
-            int randomNumber = r.nextInt(upperBound);
+            int randomNumber = sim.random.nextInt(upperBound);
             uniqueNumbers.add(randomNumber);
         }
         // Convert the set to an array

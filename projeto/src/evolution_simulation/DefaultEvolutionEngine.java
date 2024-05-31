@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.Iterator;
 public class DefaultEvolutionEngine<I extends Individual<I>> implements EvolutionEngine<I> {
 
-	private static final Random random = new Random(7);
+	private final Random random;
 
 	private final int maxPopulation;
 
@@ -91,10 +91,12 @@ public class DefaultEvolutionEngine<I extends Individual<I>> implements Evolutio
 
 	/**
 	 * 
-	 * @param maxPopulation
+	 * @param maxPopulation the maximum number of individuals in the population
+	 * @param random the random number generator to use when deciding which individuals die during an epidemic
 	 */
-	public DefaultEvolutionEngine(int maxPopulation) {
+	public DefaultEvolutionEngine(int maxPopulation, Random random) {
 		this.maxPopulation = maxPopulation;
+		this.random = random;
 	}
 
 	public int populationCount() {

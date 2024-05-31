@@ -78,7 +78,7 @@ public class Main {
 			}
 		}
 
-		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam);
+		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam, new Random());
 		PrintingObserver observer = new PrintingObserver();
 		sim.addObserver(observer);
 		sim.run();

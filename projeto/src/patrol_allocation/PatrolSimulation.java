@@ -6,11 +6,12 @@ import discrete_stochastic_simulation.*;
 
 public class PatrolSimulation {
 
-	static RandomNumberGenerator rng = RandomNumberGenerator.getInstance();
+	final Random random;
+	final RandomHelper randomHelper;
 
-	HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
-	EvolutionEngine<DistributionIndividual> evolutionEngine;
-	PendingEventContainer<SimulationEvent> pec;
+	final HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
+	final EvolutionEngine<DistributionIndividual> evolutionEngine;
+	final PendingEventContainer<SimulationEvent> pec;
 
 	final int patrolCount;
 	final int systemCount;
@@ -35,7 +36,7 @@ public class PatrolSimulation {
 	 * 
 	 * TODO - document parameters
 	 */
-	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
 		if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
 			throw new IllegalArgumentException("Matrix has 0 size");
 		}
@@ -66,13 +67,15 @@ public class PatrolSimulation {
 		this.deathParam = deathParam;
 		this.reproductionParam = reproductionParam;
 		this.mutationParam = mutationParam;
+		this.policingTimeLowerBound = calculatePolicingTimeLowerBound();
 
-		observationInterval = simDuration / 20;
+		this.observationInterval = simDuration / 20;
 
-		this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation);
+		this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation, random);
 		this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
 
-		policingTimeLowerBound = calculatePolicingTimeLowerBound();
+		this.random = random;
+		this.randomHelper = new RandomHelper(random);
 	}
 
 	/**
@@ -168,7 +171,7 @@ public class PatrolSimulation {
 	}
 
 	void scheduleReproduction(DistributionIndividual individual) {
-		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
+		double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
 		if (time < individual.deathTime && time < simDuration) {
 			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
 			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
@@ -179,7 +182,7 @@ public class PatrolSimulation {
 		}
 	}
 	void scheduleMutation(DistributionIndividual individual) {
-		double time = pec.currentEventTime() + rng.getExp((1 - Math.log(individual.comfort())) * mutationParam);
+		double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
 		if (time < individual.deathTime && time < simDuration) {
 			patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
 			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
@@ -192,7 +195,7 @@ public class PatrolSimulation {
 
 	void prepareIndividual(DistributionIndividual individual) {
 		double comfort = individual.comfort();
-		double deathTime = pec.currentEventTime() + rng.getExp((1 - Math.log(1 - comfort)) * deathParam);
+		double deathTime = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(1 - comfort)) * deathParam);
 		individual.deathTime = deathTime;
 		if (deathTime < simDuration) {
 			TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));

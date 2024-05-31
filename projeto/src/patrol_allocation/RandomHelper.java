@@ -1,14 +1,11 @@
 package patrol_allocation;
 import java.util.Random;
 
-class RandomNumberGenerator {
-	private static final RandomNumberGenerator instance = new RandomNumberGenerator();
+class RandomHelper {
+	final Random random;
 
-	final Random random = new Random(7);
-
-	private RandomNumberGenerator() {}
-	public static RandomNumberGenerator getInstance() {
-		return instance;
+	public RandomHelper(Random random) {
+		this.random = random;
 	}
 
 	double getExp(double m) {

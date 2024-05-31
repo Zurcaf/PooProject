@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 /** An immutable class representing a distribution of planetary systems among patrols for a specific simulation. */
 public class Distribution {
 	final PatrolSimulation sim;
-	static final Random r = new Random(2);
 	final int[][] array;
 
 	final int policingTime;
@@ -21,7 +20,7 @@ public class Distribution {
 		int[] allocS = new int[sim.systemCount]; 
 		int[] allocP = new int[sim.patrolCount];
 		for (int i = 0; i<sim.systemCount; i++) {
-			int systemP = r.nextInt(0,sim.patrolCount);
+			int systemP = sim.random.nextInt(0,sim.patrolCount);
 			allocS[i] = systemP;
 			allocP[systemP]++;
 		}
