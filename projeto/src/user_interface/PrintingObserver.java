@@ -12,8 +12,6 @@ public class PrintingObserver implements SimulationObserver {
 		DistributionIndividual bestIndividualEver = observation.simulation().bestIndividualEver();
 		List<DistributionIndividual> bestIndividualsAlive = observation.bestIndividuals();
 
-		patrol_allocation.Debug.check(bestIndividualEver.comfort() > bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
-		
 		StringBuilder sb = new StringBuilder(1000);
 		sb.append("Observation ");
 		sb.append(observationCount + 1);
@@ -52,6 +50,8 @@ public class PrintingObserver implements SimulationObserver {
 			}
 		}
 		System.out.println(sb);
+
+		patrol_allocation.Debug.check(bestIndividualEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
 
 		observationCount++;
 	}
