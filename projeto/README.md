@@ -23,3 +23,29 @@ Com os argumentos vindos de um ficheiro:
 ```sh
 java -jar project.jar -f input.txt
 ```
+
+## Compilar Javadoc
+Windows:
+ATENÇÃO: Ainda não testei este .bat no windows mas o comando deve ser assim...
+```batch
+.\compile_javaDoc.bat
+```
+
+Linux:
+```sh
+./compile_javaDoc.sh
+```
+
+## Abrir JavaDoc
+
+Windows:
+ATENÇÃO: Ainda não testei este comando no windows mas deve ser este...
+```sh
+start docs/index.html
+```
+
+Linux
+```sh
+xdg-open docs/index.html
+```
+
