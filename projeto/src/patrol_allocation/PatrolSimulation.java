@@ -12,15 +12,17 @@ public class PatrolSimulation {
 	EvolutionEngine<DistributionIndividual> evolutionEngine;
 	PendingEventContainer<SimulationEvent> pec;
 
-	int[][] timeMatrix;
-	int patrolCount;
-	int systemCount;
-	private double simDuration;
-	private int initialPopulation;
-	private int maxPopulation;
-	private double deathParam;
-	private double reproductionParam;
-	private double mutationParam;
+	final int[][] timeMatrix;
+	final int patrolCount;
+	final int systemCount;
+	private final double simDuration;
+	private final int initialPopulation;
+	private final int maxPopulation;
+	private final double deathParam;
+	private final double reproductionParam;
+	private final double mutationParam;
+
+	final boolean improved;
 
 	private final double observationInterval;
 	private int observationIndex = 1;
@@ -34,7 +36,7 @@ public class PatrolSimulation {
 	 * 
 	 * TODO - document parameters
 	 */
-	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+	public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, boolean improved) {
 		if (timeMatrix.length == 0 || timeMatrix[0].length == 0) {
 			throw new IllegalArgumentException("Matrix has 0 size");
 		}
@@ -65,6 +67,7 @@ public class PatrolSimulation {
 		this.deathParam = deathParam;
 		this.reproductionParam = reproductionParam;
 		this.mutationParam = mutationParam;
+		this.improved = improved;
 
 		observationInterval = simDuration / 20;
 
@@ -82,6 +85,7 @@ public class PatrolSimulation {
 			prepareIndividual(individual);
 			evolutionEngine.addIndividual(individual);
 		}
+		performObservation(true);
 
 		// Setup the first observation event. A new observation will be scheduled once this event fires
 		nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));

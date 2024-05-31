@@ -25,6 +25,7 @@ public class Main {
 		double deathParam = 0;
 		double reproductionParam = 0;
 		double mutationParam = 0;
+		boolean improved = false;
 
 		if (args[0].equals("-r")) {
 			if (args.length < 9) {
@@ -48,6 +49,8 @@ public class Main {
 					timeMatrix[p][s] = random.nextInt(1, 11);
 				}
 			}
+
+			improved = args.length > 9 && args[9].equals("-improved");
 
 		} else if (args[0].equals("-f")) {
 			File file = new File(args[1]);
@@ -76,9 +79,11 @@ public class Main {
 				System.err.println("Couldn't find file " + args[1]);
 				return;
 			}
+
+			improved = args.length > 2 && args[2].equals("-improved");
 		}
 
-		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam);
+		PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam, improved);
 		PrintingObserver observer = new PrintingObserver();
 		sim.addObserver(observer);
 		sim.run();
