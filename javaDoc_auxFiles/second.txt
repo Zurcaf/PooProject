@@ -1,3 +1,4 @@
+afonso@afonso-IdeaPad-3-15ADA05:~/Documents/repositorios/PooProject/projeto$ ./compile_javaDoc.sh 
 Loading source file user_interface/Main.java...
 Loading source file user_interface/PrintingObserver.java...
 Loading source file patrol_allocation/DeathEvent.java...
@@ -8,7 +9,7 @@ Loading source file patrol_allocation/IndividualEvent.java...
 Loading source file patrol_allocation/MutationEvent.java...
 Loading source file patrol_allocation/ObservationEvent.java...
 Loading source file patrol_allocation/PatrolSimulation.java...
-Loading source file patrol_allocation/RandomNumberGenerator.java...
+Loading source file patrol_allocation/RandomHelper.java...
 Loading source file patrol_allocation/ReproductionEvent.java...
 Loading source file patrol_allocation/SimulationEvent.java...
 Loading source file patrol_allocation/SimulationObservation.java...
@@ -69,9 +70,6 @@ evolution_simulation/EvolutionEngine.java:22: warning: no description for @param
 evolution_simulation/EvolutionEngine.java:24: warning: no @return
         List<I> bestUniqueIndividuals(int count);
                 ^
-evolution_simulation/DefaultEvolutionEngine.java:94: warning: no description for @param
-         * @param maxPopulation
-           ^
 evolution_simulation/DefaultEvolutionEngine.java:20: warning: no description for @param
          * @param individual
            ^
@@ -91,26 +89,26 @@ evolution_simulation/EvolutionEngine.java:28: warning: no comment
         int populationCount();
             ^
 Generating ../docs/patrol_allocation/Distribution.html...
-patrol_allocation/Distribution.java:53: warning: no @return
+patrol_allocation/Distribution.java:86: warning: no @return
         public List<Set<Integer>> asList() {
                                   ^
-patrol_allocation/Distribution.java:11: warning: no comment
-public class Distribution {
-       ^
-patrol_allocation/Distribution.java:61: warning: no comment
-    public void changeArray(int[][] newArray){
-                ^
+patrol_allocation/Distribution.java:69: warning: no comment
+        public double comfort() {
+                      ^
+patrol_allocation/Distribution.java:65: warning: no comment
+        public double policingTime() {
+                      ^
 Generating ../docs/patrol_allocation/DistributionIndividual.html...
 patrol_allocation/DistributionIndividual.java:11: warning: no comment
 public class DistributionIndividual implements Individual<DistributionIndividual> {
        ^
-patrol_allocation/DistributionIndividual.java:24: warning: no comment
+patrol_allocation/DistributionIndividual.java:21: warning: no comment
         public DistributionIndividual(PatrolSimulation simulation, Distribution distribution) {
                ^
 evolution_simulation/Individual.java:5: warning: no comment
         double comfort();
                ^
-patrol_allocation/DistributionIndividual.java:29: warning: no comment
+patrol_allocation/DistributionIndividual.java:26: warning: no comment
         public Distribution distribution() {
                             ^
 evolution_simulation/Individual.java:7: warning: no comment
@@ -119,9 +117,6 @@ evolution_simulation/Individual.java:7: warning: no comment
 evolution_simulation/Individual.java:9: warning: no comment
         void onEpidemicDeath();
              ^
-patrol_allocation/DistributionIndividual.java:50: warning: no comment
-        public int policingTime() {
-                   ^
 Generating ../docs/discrete_stochastic_simulation/EventAction.html...
 discrete_stochastic_simulation/EventAction.java:3: warning: no comment
 public interface EventAction {
@@ -163,37 +158,40 @@ patrol_allocation/ObservationEvent.java:3: warning: no comment
 public class ObservationEvent extends SimulationEvent {
        ^
 Generating ../docs/patrol_allocation/PatrolSimulation.html...
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for timeMatrix
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for timeMatrix
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for simDuration
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for simDuration
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for initialPopulation
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for initialPopulation
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for maxPopulation
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for maxPopulation
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for deathParam
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for deathParam
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for reproductionParam
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for reproductionParam
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:37: warning: no @param for mutationParam
-        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam) {
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for mutationParam
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
                ^
-patrol_allocation/PatrolSimulation.java:104: warning: no description for @param
+patrol_allocation/PatrolSimulation.java:39: warning: no @param for random
+        public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {
+               ^
+patrol_allocation/PatrolSimulation.java:128: warning: no description for @param
          * @param observer
            ^
 patrol_allocation/PatrolSimulation.java:7: warning: no comment
 public class PatrolSimulation {
        ^
-patrol_allocation/PatrolSimulation.java:145: warning: no comment
-        public DistributionIndividual bestIndividualEver() {
-                                      ^
-patrol_allocation/PatrolSimulation.java:75: warning: no comment
+patrol_allocation/PatrolSimulation.java:169: warning: no comment
+        public Distribution bestDistributionEver() {
+                            ^
+patrol_allocation/PatrolSimulation.java:99: warning: no comment
         public void run() {
                     ^
 Generating ../docs/discrete_stochastic_simulation/PendingEventContainer.html...
@@ -268,4 +266,4 @@ Generating ../docs/allpackages-index.html...
 Generating ../docs/index-all.html...
 Generating ../docs/overview-summary.html...
 Generating ../docs/help-doc.html...
-69 warnings
+68 warnings
