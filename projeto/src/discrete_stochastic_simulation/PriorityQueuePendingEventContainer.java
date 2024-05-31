@@ -1,6 +1,7 @@
 package discrete_stochastic_simulation;
 
 import java.util.PriorityQueue;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class PriorityQueuePendingEventContainer<A extends EventAction> implements PendingEventContainer<A>, Iterable<TimedEvent<A>> {
@@ -31,7 +32,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 			patrol_allocation.Debug.log("\n[" + event.time + "]");
 			currentEventTime = event.time;
 			event.action.execute();
-			// patrol_allocation.Debug.log("Next 10 events left in queue: " + Arrays.deepToString(pec.stream().limit(10).map(ev -> ev.time + " " + ev.action.getClass().getName()).toArray()));
+			patrol_allocation.Debug.log("Next 10 events left in queue: " + Arrays.deepToString(pec.stream().limit(10).map(ev -> ev.time + " " + ev.action.getClass().getName()).toArray()));
 		}
 		currentEventTime = -1;
 	}

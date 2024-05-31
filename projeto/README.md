@@ -25,6 +25,7 @@ java -jar project.jar -f input.txt
 ```
 
 ## Compilar Javadoc
+
 Windows:
 ATENÇÃO: Ainda não testei este .bat no windows mas o comando deve ser assim...
 ```batch
