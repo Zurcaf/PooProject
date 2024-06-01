@@ -1,16 +1,16 @@
 package patrol_allocation;
 
 /**
- * Represents an event where an observation is performed in the patrol simulation.
+ * Represents an event action where an observation is performed in the patrol simulation.
  */
-public class ObservationEvent extends SimulationEvent {
+public class ObservationEventAction extends SimulationEventAction {
 
     /**
-     * Constructs a new ObservationEvent with the specified simulation.
+     * Constructs a new ObservationEventAction for the specified simulation.
      *
      * @param simulation The simulation in which the event occurs.
      */
-    ObservationEvent(PatrolSimulation simulation) {
+    ObservationEventAction(PatrolSimulation simulation) {
         super(simulation);
     }
 

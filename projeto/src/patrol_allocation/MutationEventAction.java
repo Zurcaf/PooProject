@@ -1,17 +1,17 @@
 package patrol_allocation;
 
 /**
- * Represents an event where an individual's distribution undergoes a mutation in the patrol simulation.
+ * Represents an event action where an individual's distribution undergoes a mutation in the patrol simulation.
  */
-public class MutationEvent extends IndividualEvent {
+public class MutationEventAction extends IndividualEventAction {
 
     /**
-     * Constructs a new MutationEvent with the specified simulation and individual.
+     * Constructs a new MutationEventAction for the specified simulation and individual.
      *
      * @param simulation The simulation in which the event occurs.
      * @param individual The individual whose distribution is to be mutated.
      */
-    public MutationEvent(PatrolSimulation simulation, DistributionIndividual individual) {
+    public MutationEventAction(PatrolSimulation simulation, DistributionIndividual individual) {
         super(simulation, individual);
     }
 

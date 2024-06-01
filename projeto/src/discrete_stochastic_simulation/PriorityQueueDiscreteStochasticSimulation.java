@@ -5,18 +5,18 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 
 /**
- * A container for pending events in a discrete stochastic simulation that uses a priority queue to manage events.
+ * A discrete stochastic simulation that uses a priority queue (heap) as the pending event container.
  *
  * @param <A> The type of event action that this container handles, which must extend the {@link EventAction} interface.
  */
-public class PriorityQueuePendingEventContainer<A extends EventAction> implements PendingEventContainer<A>, Iterable<TimedEvent<A>> {
+public class PriorityQueueDiscreteStochasticSimulation<A extends EventAction> implements DiscreteStochasticSimulation<A>, Iterable<TimedEvent<A>> {
 
     private PriorityQueue<TimedEvent<A>> pec = new PriorityQueue<TimedEvent<A>>();
     private double currentEventTime = 0;
     private boolean stopped = false;
 
     /**
-     * Removes the specified event from the container.
+     * Removes the specified event.
      *
      * @param oldTimedEvent The event to be removed.
      */
@@ -25,7 +25,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
     }
 
     /**
-     * Adds the specified event to the container.
+     * Adds the specified event.
      *
      * @param event The event to be added.
      */
@@ -35,7 +35,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
 
     /**
      * Starts the execution of events in the container. Events are executed in order of their scheduled times.
-     * The execution stops (and this method returns) when there are no more events or when the simulation is stopped using the {@link PriorityQueuePendingEventContainer#stop()} method is called.
+     * The execution stops (and this method returns) when there are no more events or when the simulation is stopped using the {@link PriorityQueueDiscreteStochasticSimulation#stop()} method is called.
      */
     public void run() {
         while (!stopped) {
@@ -50,7 +50,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
     }
 
     /**
-     * Stops the execution of events in the container.
+     * Stops the execution of events.
      */
     public void stop() {
         stopped = true;
@@ -66,7 +66,7 @@ public class PriorityQueuePendingEventContainer<A extends EventAction> implement
     }
 
     /**
-     * Returns an iterator over the pending events in the container.
+     * Returns an iterator over the pending events.
      *
      * @return An iterator over the pending events.
      */

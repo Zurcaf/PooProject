@@ -16,9 +16,9 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     private Distribution distribution;
 
     double deathTime;
-    TimedEvent<SimulationEvent> deathEvent;
-    TimedEvent<SimulationEvent> reproductionEvent;
-    TimedEvent<SimulationEvent> mutationEvent;
+    TimedEvent<SimulationEventAction> deathEvent;
+    TimedEvent<SimulationEventAction> reproductionEvent;
+    TimedEvent<SimulationEventAction> mutationEvent;
 
     /**
      * Constructs a new DistributionIndividual with the specified simulation and distribution.

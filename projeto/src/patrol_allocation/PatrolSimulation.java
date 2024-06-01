@@ -18,7 +18,7 @@ public class PatrolSimulation {
 
     final HashSet<SimulationObserver> observers = new HashSet<SimulationObserver>();
     final EvolutionEngine<DistributionIndividual> evolutionEngine;
-    final PendingEventContainer<SimulationEvent> pec;
+    final DiscreteStochasticSimulation<SimulationEventAction> pec;
 
     final int patrolCount;
     final int systemCount;
@@ -33,7 +33,7 @@ public class PatrolSimulation {
 
     private final double observationInterval;
     private int observationIndex = 1;
-    private TimedEvent<SimulationEvent> nextObservationEvent;
+    private TimedEvent<SimulationEventAction> nextObservationEvent;
 
     /** The best distribution found so far. This is updated by {@link PatrolSimulation#updateBestDistributionEver(Distribution)}. */
     private Distribution bestDistributionEver = null;
@@ -94,7 +94,7 @@ public class PatrolSimulation {
         this.observationInterval = simDuration / 20;
 
         this.evolutionEngine = new evolution_simulation.DefaultEvolutionEngine<DistributionIndividual>(maxPopulation, random);
-        this.pec = new discrete_stochastic_simulation.PriorityQueuePendingEventContainer<SimulationEvent>();
+        this.pec = new discrete_stochastic_simulation.PriorityQueueDiscreteStochasticSimulation<SimulationEventAction>();
 
         this.random = random;
         this.randomHelper = new RandomHelper(random);
@@ -132,7 +132,7 @@ public class PatrolSimulation {
         }
 
         // Setup the first observation event. A new observation will be scheduled once this event fires
-        nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));
+        nextObservationEvent = new TimedEvent<SimulationEventAction>(observationInterval, new ObservationEventAction(this));
         pec.addEvent(nextObservationEvent);
 
         // Run the simulation event loop
@@ -182,7 +182,7 @@ public class PatrolSimulation {
         if (!finalObservation) {
             double time = observationInterval * observationIndex;
             if (time < simDuration) {
-                nextObservationEvent = new TimedEvent<SimulationEvent>(time, new ObservationEvent(this));
+                nextObservationEvent = new TimedEvent<SimulationEventAction>(time, new ObservationEventAction(this));
                 pec.addEvent(nextObservationEvent);
             }
         }
@@ -224,7 +224,7 @@ public class PatrolSimulation {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
         if (time < individual.deathTime && time < simDuration) {
             patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
-            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new ReproductionEvent(this, individual));
+            TimedEvent<SimulationEventAction> event = new TimedEvent<SimulationEventAction>(time, new ReproductionEventAction(this, individual));
             individual.reproductionEvent = event;
             pec.addEvent(event);
         } else {
@@ -241,7 +241,7 @@ public class PatrolSimulation {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
         if (time < individual.deathTime && time < simDuration) {
             patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
-            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(time, new MutationEvent(this, individual));
+            TimedEvent<SimulationEventAction> event = new TimedEvent<SimulationEventAction>(time, new MutationEventAction(this, individual));
             individual.mutationEvent = event;
             pec.addEvent(event);
         } else {
@@ -259,7 +259,7 @@ public class PatrolSimulation {
         double deathTime = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(1 - comfort)) * deathParam);
         individual.deathTime = deathTime;
         if (deathTime < simDuration) {
-            TimedEvent<SimulationEvent> event = new TimedEvent<SimulationEvent>(deathTime, new DeathEvent(this, individual));
+            TimedEvent<SimulationEventAction> event = new TimedEvent<SimulationEventAction>(deathTime, new DeathEventAction(this, individual));
             individual.deathEvent = event;
             pec.addEvent(event);
         } else {
@@ -272,7 +272,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Removes an individual from the population. Called by {@link DeathEvent}.
+     * Removes an individual from the population. Called by {@link DeathEventAction}.
      *
      * @param individual The individual that dies.
      */
@@ -286,7 +286,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Reproduces the specified individual and schedules a new reproduction event. Called by {@link ReproductionEvent}.
+     * Reproduces the specified individual and schedules a new reproduction event. Called by {@link ReproductionEventAction}.
      *
      * @param individual The individual that reproduces.
      */
@@ -300,7 +300,7 @@ public class PatrolSimulation {
     }
 
     /**
-     * Mutates the specified individual and schedules a new mutation event. Called by {@link MutationEvent}.
+     * Mutates the specified individual and schedules a new mutation event. Called by {@link MutationEventAction}.
      *
      * @param individual The individual that mutates.
      */

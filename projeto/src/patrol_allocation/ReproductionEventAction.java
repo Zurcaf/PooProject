@@ -1,17 +1,17 @@
 package patrol_allocation;
 
 /**
- * Represents an event where an individual reproduces in the patrol simulation.
+ * Represents an event action where an individual reproduces.
  */
-public class ReproductionEvent extends IndividualEvent {
+public class ReproductionEventAction extends IndividualEventAction {
 
     /**
-     * Constructs a new ReproductionEvent with the specified simulation and individual.
+     * Constructs a new ReproductionEventAction for the specified simulation and individual.
      *
      * @param simulation The simulation in which the event occurs.
      * @param individual The individual that will reproduce.
      */
-    public ReproductionEvent(PatrolSimulation simulation, DistributionIndividual individual) {
+    public ReproductionEventAction(PatrolSimulation simulation, DistributionIndividual individual) {
         super(simulation, individual);
     }
 
