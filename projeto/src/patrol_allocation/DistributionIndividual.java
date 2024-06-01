@@ -100,12 +100,11 @@ public class DistributionIndividual implements Individual<DistributionIndividual
      * @return The new individual created by reproduction.
      */
     DistributionIndividual reproduce() {
-        int patrols = this.distribution.array.length;
         int m = 0; // Total number of systems
-        int[] sysCounter = new int[patrols]; // Number of systems in each patrol
+        int[] sysCounter = new int[sim.patrolCount]; // Number of systems being policed by each patrol
     
         // Calculate total number of systems and populate sysCounter
-        for (int i = 0; i < patrols; i++) {
+        for (int i = 0; i < sim.patrolCount; i++) {
             m += this.distribution.array[i].length;
             sysCounter[i] = this.distribution.array[i].length;
         }
@@ -116,8 +115,8 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         int[] altSystems = this.generateUniqueRandomNumbers(difSystems, m); // Altered systems
     
         // Create a copy of the current array
-        int[][] newArray = new int[patrols][];
-        for (int i = 0; i < patrols; i++) {
+        int[][] newArray = new int[sim.patrolCount][];
+        for (int i = 0; i < sim.patrolCount; i++) {
             newArray[i] = Arrays.copyOf(this.distribution.array[i], this.distribution.array[i].length);
         }
     
@@ -125,7 +124,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
         for (int i = 0; i < difSystems; i++) {
             int oldPatrol = 0;
             // Find the patrol containing the altered system
-            for (int j = 0; j < patrols; j++) {
+            for (int j = 0; j < sim.patrolCount; j++) {
                 if (Arrays.binarySearch(this.distribution.array[j], altSystems[i]) >= 0) {
                     oldPatrol = j;
                     break;
@@ -135,7 +134,7 @@ public class DistributionIndividual implements Individual<DistributionIndividual
             int newPatrol;
             // Find a new patrol for the altered system
             do {
-                newPatrol = sim.random.nextInt(patrols);
+                newPatrol = sim.random.nextInt(sim.patrolCount);
             } while (Arrays.binarySearch(newArray[newPatrol], altSystems[i]) >= 0); // Check if the system is already in the new patrol
     
             // Remove the system from the old patrol

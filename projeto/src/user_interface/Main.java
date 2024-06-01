@@ -10,7 +10,7 @@ import patrol_allocation.PatrolSimulation;
 
 /**
  * The main class for running the patrol allocation simulation. It accepts command-line arguments
- * to configure the simulation parameters either randomly or from a file.
+ * to configure the simulation parameters either directly or from a file.
  */
 public class Main {
 

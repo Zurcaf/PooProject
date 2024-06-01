@@ -24,20 +24,22 @@ public class Distribution {
      * @return A new random Distribution.
      */
     static Distribution newRandom(PatrolSimulation sim) {
-        int[] allocS = new int[sim.systemCount];
-        int[] allocP = new int[sim.patrolCount];
-        for (int i = 0; i < sim.systemCount; i++) {
-            int systemP = sim.random.nextInt(0, sim.patrolCount);
-            allocS[i] = systemP;
-            allocP[systemP]++;
+        // The patrol chosen for each planetary system
+        int[] systemPatrols = new int[sim.systemCount];
+        // For each patrol, the number of planetary systems being policed by it
+        int[] patrolSystemCount = new int[sim.patrolCount];
+        for (int system = 0; system < sim.systemCount; system++) {
+            int chosenPatrol = sim.random.nextInt(0, sim.patrolCount);
+            systemPatrols[system] = chosenPatrol;
+            patrolSystemCount[chosenPatrol]++;
         }
         int[][] array = new int[sim.patrolCount][];
         for (int i = 0; i < sim.patrolCount; i++) {
-            array[i] = new int[allocP[i]];
+            array[i] = new int[patrolSystemCount[i]];
         }
         int[] patrolIndexes = new int[sim.patrolCount];
         for (int i = 0; i < sim.systemCount; i++) {
-            int patrol = allocS[i];
+            int patrol = systemPatrols[i];
             array[patrol][patrolIndexes[patrol]] = i;
             patrolIndexes[patrol]++;
         }
