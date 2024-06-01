@@ -6,6 +6,7 @@ package patrol_allocation;
  */
 public abstract class IndividualEventAction extends SimulationEventAction {
 
+    /** The individual associated with this event action */
     protected DistributionIndividual individual;
 
     /**

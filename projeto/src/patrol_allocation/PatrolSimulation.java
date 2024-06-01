@@ -44,12 +44,12 @@ public class PatrolSimulation {
      * Constructs a new simulation with the specified parameters.
      *
      * @param timeMatrix The time matrix representing the time required for patrols to reach each system (C).
-     * @param simDuration The final instant of the simulation (τ).
-     * @param initialPopulation The number of individuals in the initial population (ν).
-     * @param maxPopulation The maximum number of individuals in the population (ν_{max}).
-     * @param deathParam Parameter controlling the death rate of individuals (μ).
-     * @param reproductionParam Parameter controlling the reproduction rate of individuals (ρ).
-     * @param mutationParam Parameter controlling the mutation rate of individuals (δ).
+     * @param simDuration The final instant of the simulation (tau).
+     * @param initialPopulation The number of individuals in the initial population (nu).
+     * @param maxPopulation The maximum number of individuals in the population (nu_max).
+     * @param deathParam Parameter controlling the death rate of individuals (mu).
+     * @param reproductionParam Parameter controlling the reproduction rate of individuals (rho).
+     * @param mutationParam Parameter controlling the mutation rate of individuals (delta).
      * @param random The random number generator to be used by all operations which require randomness in this simulation.
      */
     public PatrolSimulation(int[][] timeMatrix, double simDuration, int initialPopulation, int maxPopulation, double deathParam, double reproductionParam, double mutationParam, Random random) {

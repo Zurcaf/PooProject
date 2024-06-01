@@ -1,5 +1,6 @@
 package user_interface;
 
+import java.util.ArrayList;
 import java.util.List;
 import patrol_allocation.*;
 
@@ -20,7 +21,7 @@ public class PrintingObserver implements SimulationObserver {
      */
     public void onObservation(SimulationObservation observation) {
         Distribution bestDistributionEver = observation.simulation().bestDistributionEver();
-        List<DistributionIndividual> bestIndividualsAlive = observation.bestIndividuals();
+        List<DistributionIndividual> bestIndividualsAlive = new ArrayList<DistributionIndividual>(observation.bestIndividuals());
 
         StringBuilder sb = new StringBuilder(1000);
         sb.append("Observation ");
@@ -50,17 +51,28 @@ public class PrintingObserver implements SimulationObserver {
         sb.append("    Other candidate distributions:    ");
         if (bestIndividualsAlive.size() == 0) {
             sb.append("(the population is extinct)");
-        }
-        for (int i = 0; i < bestIndividualsAlive.size(); i++) {
-            Distribution distribution = bestIndividualsAlive.get(i).distribution();
-            sb.append(distribution);
-            sb.append(" : ");
-            sb.append(distribution.policingTime());
-            sb.append(" : ");
-            sb.append(distribution.comfort());
-            sb.append("\n");
-            if (i < bestIndividualsAlive.size() - 1) {
-                sb.append("                                      ");
+        } else {
+            if (bestIndividualsAlive.get(0).distribution().equals(bestDistributionEver)) {
+                // If the best individual alive has the best distribution found so far, don't print that distribution again.
+                bestIndividualsAlive.remove(0);
+            } else if (bestIndividualsAlive.size() > 5) {
+                // Limit the distributions shown to a maximum of 5 (note that bestIndividualsAlive never has more than 6 entries)
+                bestIndividualsAlive.remove(5);
+            }
+            if (bestIndividualsAlive.size() == 0) {
+                sb.append("(there are no individuals with other distributions alive)");
+            }
+            for (int i = 0; i < bestIndividualsAlive.size(); i++) {
+                Distribution distribution = bestIndividualsAlive.get(i).distribution();
+                sb.append(distribution);
+                sb.append(" : ");
+                sb.append(distribution.policingTime());
+                sb.append(" : ");
+                sb.append(distribution.comfort());
+                sb.append("\n");
+                if (i < bestIndividualsAlive.size() - 1) {
+                    sb.append("                                      ");
+                }
             }
         }
         System.out.println(sb);

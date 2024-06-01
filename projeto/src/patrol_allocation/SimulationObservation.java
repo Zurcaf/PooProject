@@ -86,9 +86,10 @@ public class SimulationObservation {
     }
 
     /**
-     * Returns the list of the best individuals in the simulation at this point.
+     * Returns a list of the 6 best individuals with unique solutions currently alive in the
+     * simulation. The list might contain less than 6 individuals if the population is not big enough.
      *
-     * @return The list of the best individuals.
+     * @return The list of the 6 best individuals.
      */
     public List<DistributionIndividual> bestIndividuals() {
         return bestIndividuals;

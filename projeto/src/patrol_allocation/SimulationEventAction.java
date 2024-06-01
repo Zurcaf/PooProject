@@ -8,6 +8,7 @@ import discrete_stochastic_simulation.EventAction;
  */
 public abstract class SimulationEventAction implements EventAction {
 
+    /** The simulation to which this event action belongs */
     protected final PatrolSimulation simulation;
 
     /**
