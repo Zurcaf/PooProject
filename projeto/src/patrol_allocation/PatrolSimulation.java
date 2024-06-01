@@ -26,7 +26,6 @@ public class PatrolSimulation {
     final double policingTimeLowerBound;
     private final double simDuration;
     private final int initialPopulation;
-    private final int maxPopulation;
     private final double deathParam;
     private final double reproductionParam;
     private final double mutationParam;
@@ -82,7 +81,6 @@ public class PatrolSimulation {
         this.timeMatrix = timeMatrix;
         this.simDuration = simDuration;
         this.initialPopulation = initialPopulation;
-        this.maxPopulation = maxPopulation;
         this.deathParam = deathParam;
         this.reproductionParam = reproductionParam;
         this.mutationParam = mutationParam;
