@@ -48,6 +48,9 @@ public class PrintingObserver implements SimulationObserver {
         sb.append(bestDistributionEver.comfort());
         sb.append("\n");
         sb.append("    Other candidate distributions:    ");
+        if (bestIndividualsAlive.size() == 0) {
+            sb.append("(the population is extinct)");
+        }
         for (int i = 0; i < bestIndividualsAlive.size(); i++) {
             Distribution distribution = bestIndividualsAlive.get(i).distribution();
             sb.append(distribution);
@@ -56,13 +59,13 @@ public class PrintingObserver implements SimulationObserver {
             sb.append(" : ");
             sb.append(distribution.comfort());
             sb.append("\n");
-            if (i < bestIndividualsAlive.size()) {
+            if (i < bestIndividualsAlive.size() - 1) {
                 sb.append("                                      ");
             }
         }
         System.out.println(sb);
 
-        patrol_allocation.Debug.check(bestDistributionEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
+        patrol_allocation.Debug.check(bestIndividualsAlive.size() == 0 || bestDistributionEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
 
         observationCount++;
     }

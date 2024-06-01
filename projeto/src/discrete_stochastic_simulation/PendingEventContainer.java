@@ -29,7 +29,9 @@ public interface PendingEventContainer<A extends EventAction> {
     double currentEventTime();
 
     /**
-     * Starts the execution of events. This function should return whenever there are no longer any events left to process or when the {@link PendingEventContainer#stop()} method is called.
+     * Starts the execution of events. This function should return whenever there are no longer any events left to process or
+     * when the {@link PendingEventContainer#stop()} method is called. If {@link PendingEventContainer#stop()} was already called,
+     * this method should do nothing and return immediately.
      */
     void run();
 

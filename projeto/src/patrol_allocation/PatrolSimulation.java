@@ -58,7 +58,7 @@ public class PatrolSimulation {
                 throw new IllegalArgumentException("Matrix row sizes differ");
             }
         }
-        if (simDuration <= 0) {
+        if (simDuration <= 0.0) {
             throw new IllegalArgumentException("The simulation duration must be a positive number");
         }
         if (initialPopulation <= 0) {
@@ -67,7 +67,7 @@ public class PatrolSimulation {
         if (maxPopulation <= 0) {
             throw new IllegalArgumentException("The maximum population count must be a positive integer");
         }
-        if (deathParam <= 0 || reproductionParam <= 0 || mutationParam <= 0) {
+        if (deathParam <= 0.0 || reproductionParam <= 0.0 || mutationParam <= 0.0) {
             throw new IllegalArgumentException("The death, reproduction and mutation parameters must all be positive integers");
         }
 
@@ -79,6 +79,9 @@ public class PatrolSimulation {
         this.reproductionParam = reproductionParam;
         this.mutationParam = mutationParam;
         this.policingTimeLowerBound = calculatePolicingTimeLowerBound();
+        if (this.policingTimeLowerBound <= 0.0) {
+            throw new IllegalArgumentException("The matrix must not contain null entries on all columns");
+        }
 
         this.observationInterval = simDuration / 20;
 
@@ -104,7 +107,7 @@ public class PatrolSimulation {
             }
             sumMin += min;
         }
-        return sumMin / patrolCount;
+        return (double) sumMin / patrolCount;
     }
 
     /**
@@ -114,17 +117,17 @@ public class PatrolSimulation {
         // Initialize the population with random distributions
         for (int i = 0; i < initialPopulation; i++) {
             DistributionIndividual individual = new DistributionIndividual(this, Distribution.newRandom(this));
-            if (updateBestDistributionEver(individual.distribution())) {
-                break;
-            }
-            prepareIndividual(individual);
             evolutionEngine.addIndividual(individual);
+            if (updateBestDistributionEver(individual.distribution())) break;
+            prepareIndividual(individual);
         }
 
         // Setup the first observation event. A new observation will be scheduled once this event fires
         nextObservationEvent = new TimedEvent<SimulationEvent>(observationInterval, new ObservationEvent(this));
         pec.addEvent(nextObservationEvent);
 
+        // Run the simulation event loop
+        // If this individual has a comfort of 1, pec.stop() was already called, so this should do nothing.
         pec.run();
 
         // Perform the final observation
@@ -282,10 +285,9 @@ public class PatrolSimulation {
         totalEventCount++;
         DistributionIndividual offspring = individual.reproduce();
         patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
+        evolutionEngine.addIndividual(offspring);
         if (updateBestDistributionEver(offspring.distribution())) return;
         prepareIndividual(offspring);
-        evolutionEngine.addIndividual(offspring);
-        scheduleReproduction(offspring);
     }
 
     /**
