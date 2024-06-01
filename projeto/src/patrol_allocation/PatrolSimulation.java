@@ -6,6 +6,10 @@ import discrete_stochastic_simulation.*;
 
 /**
  * Represents a patrol simulation where a population of individuals (patrol distributions) evolves over time.
+ * 
+ * Simulations emit periodic observations (see {@link SimulationObservation}) with a period of
+ * 1/20th of the simulation duration. You can register a {@link SimulationObserver} to access the
+ * observations as they happen.
  */
 public class PatrolSimulation {
 
@@ -31,17 +35,18 @@ public class PatrolSimulation {
     private int observationIndex = 1;
     private TimedEvent<SimulationEvent> nextObservationEvent;
 
+    /** The best distribution found so far. This is updated by {@link PatrolSimulation#updateBestDistributionEver(Distribution)}. */
     private Distribution bestDistributionEver = null;
 
     private int totalEventCount = 0;
 
     /**
-     * Constructs a new PatrolSimulation with the specified parameters.
+     * Constructs a new simulation with the specified parameters.
      *
-     * @param timeMatrix The time matrix representing the time required for patrols to reach each system.
-     * @param simDuration The total duration of the simulation.
-     * @param initialPopulation The number of individuals in the initial population.
-     * @param maxPopulation The maximum number of individuals in the population.
+     * @param timeMatrix The time matrix representing the time required for patrols to reach each system (C).
+     * @param simDuration The final instant of the simulation (τ).
+     * @param initialPopulation The number of individuals in the initial population (ν).
+     * @param maxPopulation The maximum number of individuals in the population (ν_{max}).
      * @param deathParam Parameter controlling the death rate of individuals (μ).
      * @param reproductionParam Parameter controlling the reproduction rate of individuals (ρ).
      * @param mutationParam Parameter controlling the mutation rate of individuals (δ).
@@ -114,7 +119,8 @@ public class PatrolSimulation {
     }
 
     /**
-     * Runs the simulation, initializing the population and executing events.
+     * Runs the simulation. The {@link SimulationObserver#onObservation(SimulationObservation)} method
+     * of registered observers will be called while this method is running.
      */
     public void run() {
         // Initialize the population with random distributions

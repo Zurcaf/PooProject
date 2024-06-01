@@ -4,7 +4,15 @@ import java.util.List;
 
 /**
  * Interface representing an evolution engine that manages a population of individuals,
- * enforcing population limits and selecting the best individuals based on specific criteria.
+ * enforcing population limits through epidemics.
+ *
+ * Individuals can be added to the population and removed from the population at any
+ * time. Whe the population size grows above the maximum size, an epidemic happens.
+ * Except for the 5 best individuals with unique solutions (as detemined by
+ * {@link Individual#isSolutionEqual(Individual)}), each individual has a 1/3
+ * probability of getting killed by an epidemic when one happens, in which case the
+ * {@link Individual#onEpidemicDeath()} method of the individuals who die is called.
+ * The 5 best individuals always survive the epidemic.
  *
  * @param <I> The type of individuals managed by this evolution engine, which must implement the {@link Individual} interface.
  */

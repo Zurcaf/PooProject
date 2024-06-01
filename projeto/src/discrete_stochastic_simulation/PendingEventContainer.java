@@ -1,9 +1,12 @@
 package discrete_stochastic_simulation;
 
 /**
- * Interface representing a container for pending events in a discrete stochastic simulation.
+ * Interface representing a discrete stochastic simulation.
+ * 
+ * Events can be added and removed. When the simulation is run, a loop executes the event with the lowest
+ * time until either there are no more events left or the {@link PendingEventContainer#stop()} method is called.
  *
- * @param <A> The type of event action that this container handles, which must extend the {@link EventAction} interface.
+ * @param <A> The type of event action, which must extend the {@link EventAction} interface.
  */
 public interface PendingEventContainer<A extends EventAction> {
 

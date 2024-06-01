@@ -18,16 +18,6 @@ public class Main {
      * The entry point of the application. Parses command-line arguments to set up and run the simulation.
      *
      * @param args Command-line arguments to configure the simulation.
-     *             Usage:
-     *             <pre>
-     *             java -jar project.jar [ -seed &lt;seed&gt; ] ( -f &lt;filename&gt; | -r &lt;number of patrols&gt; &lt;number of planetary systems&gt; &lt;final instant&gt; &lt;initial population&gt; &lt;maximum population&gt; &lt;death parameter&gt; &lt;reproduction parameter&gt; &lt;mutation parameter&gt; )
-     *             </pre>
-     *             Options:
-     *             <ul>
-     *               <li>-seed &lt;seed&gt;: Sets the seed for the random number generator.</li>
-     *               <li>-f &lt;filename&gt;: Reads simulation parameters from the specified file.</li>
-     *               <li>-r &lt;number of patrols&gt; &lt;number of planetary systems&gt; &lt;final instant&gt; &lt;initial population&gt; &lt;maximum population&gt; &lt;death parameter&gt; &lt;reproduction parameter&gt; &lt;mutation parameter&gt;: Sets simulation parameters randomly.</li>
-     *             </ul>
      */
     public static void main(String[] args) {
         boolean parametersSet = false;
@@ -116,7 +106,9 @@ public class Main {
 
         if (!parametersSet) {
             System.err.println(
-                "Usage: java -jar project.jar [ -seed <seed> ] ( -f <filename> | -r <number of patrols> <number of planetary systems> <final instant> <initial population> <maximum population> <death parameter> <reproduction parameter> <mutation parameter> )"
+                "Usage: java -jar project.jar [ -seed <seed> ] ( -f <filename> | -r <number of patrols> <number of planetary systems> <final instant> <initial population> <maximum population> <death parameter> <reproduction parameter> <mutation parameter> )" + System.lineSeparator() +
+                "" + System.lineSeparator() +
+                "If a non-zero seed is given, that seed will be used for the random number generation, such that running simulations with the same parameters and seed will always (deterministially) yield the same results." + System.lineSeparator()
             );
             return;
         }
