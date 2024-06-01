@@ -112,8 +112,6 @@ public class DistributionIndividual implements Individual<DistributionIndividual
     
         // Generate altered systems
         int difSystems = (int) Math.floor((1 - this.distribution.comfort()) * m);        
-        // System.out.println("difSystems: " + difSystems);
-        // System.out.println("confort: " + cachedComfort);
 
         int[] altSystems = this.generateUniqueRandomNumbers(difSystems, m); // Altered systems
     

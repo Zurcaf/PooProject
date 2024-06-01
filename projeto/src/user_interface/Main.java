@@ -121,8 +121,6 @@ public class Main {
             return;
         }
 
-        System.out.println(patrolCount + " " + seed);
-
         PatrolSimulation sim = new PatrolSimulation(timeMatrix, simDuration, initialPopulation, maxPopulation, deathParam, reproductionParam, mutationParam, seed == 0 ? new Random() : new Random(seed));
         PrintingObserver observer = new PrintingObserver();
         sim.addObserver(observer);
