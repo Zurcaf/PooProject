@@ -2,5 +2,5 @@
 *.jar
 *.vpp
 
-docs/
+JDOC/
 *_output.txt
