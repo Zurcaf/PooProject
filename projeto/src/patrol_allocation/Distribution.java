@@ -83,7 +83,7 @@ public class Distribution {
      *
      * @return The policing time.
      */
-    public double policingTime() {
+    public int policingTime() {
         return policingTime;
     }
 
