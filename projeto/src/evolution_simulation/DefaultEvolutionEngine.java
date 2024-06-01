@@ -115,7 +115,6 @@ public class DefaultEvolutionEngine<I extends Individual<I>> implements Evolutio
      * have a 1/3 probability of being removed from the population.
      */
     private void doEpidemic() {
-        patrol_allocation.Debug.log("Population size exceeded the maximum. Unleashing an epidemic!");
         epidemicCount++;
         List<I> luckyFew = bestUniqueIndividuals(5);
         Iterator<I> iterator = population.iterator();

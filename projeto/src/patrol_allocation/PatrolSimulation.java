@@ -197,7 +197,6 @@ public class PatrolSimulation {
             bestDistributionEver = distribution;
         }
         if (distribution.comfort() >= 1) {
-            patrol_allocation.Debug.log("Found individual with comfort = 1. Stopping the simulation!");
             pec.stop();
             return true;
         }
@@ -221,7 +220,6 @@ public class PatrolSimulation {
     private void scheduleReproduction(DistributionIndividual individual) {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * reproductionParam);
         if (time < individual.deathTime && time < simDuration) {
-            patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will reproduce at " + time);
             TimedEvent<SimulationEventAction> event = new TimedEvent<SimulationEventAction>(time, new ReproductionEventAction(this, individual));
             individual.reproductionEvent = event;
             pec.addEvent(event);
@@ -238,7 +236,6 @@ public class PatrolSimulation {
     private void scheduleMutation(DistributionIndividual individual) {
         double time = pec.currentEventTime() + randomHelper.getExp((1 - Math.log(individual.comfort())) * mutationParam);
         if (time < individual.deathTime && time < simDuration) {
-            patrol_allocation.Debug.log("Individual " + individual.hashCode() + " will mutate at " + time);
             TimedEvent<SimulationEventAction> event = new TimedEvent<SimulationEventAction>(time, new MutationEventAction(this, individual));
             individual.mutationEvent = event;
             pec.addEvent(event);
@@ -263,7 +260,6 @@ public class PatrolSimulation {
         } else {
             individual.deathEvent = null;
         }
-        patrol_allocation.Debug.log("Added individual " + individual.hashCode() + ", which will die at " + deathTime);
 
         scheduleReproduction(individual);
         scheduleMutation(individual);
@@ -275,7 +271,6 @@ public class PatrolSimulation {
      * @param individual The individual that dies.
      */
     void performDeath(DistributionIndividual individual) {
-        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " died");
         totalEventCount++;
         evolutionEngine.removeIndividual(individual);
         if (evolutionEngine.populationCount() == 0) {
@@ -291,7 +286,6 @@ public class PatrolSimulation {
     void performReproduction(DistributionIndividual individual) {
         totalEventCount++;
         DistributionIndividual offspring = individual.reproduce();
-        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " reproduced, producing individual " + offspring.hashCode());
         evolutionEngine.addIndividual(offspring);
         if (updateBestDistributionEver(offspring.distribution())) return;
         prepareIndividual(offspring);
@@ -303,7 +297,6 @@ public class PatrolSimulation {
      * @param individual The individual that mutates.
      */
     void performMutation(DistributionIndividual individual) {
-        patrol_allocation.Debug.log("Individual " + individual.hashCode() + " mutated");
         totalEventCount++;
         individual.mutateInPlace();
         if (updateBestDistributionEver(individual.distribution())) return;
@@ -314,7 +307,6 @@ public class PatrolSimulation {
      * Handles the event when the population becomes extinct.
      */
     void onPopulationExtinct() {
-        patrol_allocation.Debug.log("The population has become extinct!");
         // Removing the next observation event allows the simulation event loop to exit
         pec.removeEvent(nextObservationEvent);
     }

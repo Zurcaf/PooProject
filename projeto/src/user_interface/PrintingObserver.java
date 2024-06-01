@@ -77,8 +77,6 @@ public class PrintingObserver implements SimulationObserver {
         }
         System.out.println(sb);
 
-        patrol_allocation.Debug.check(bestIndividualsAlive.size() == 0 || bestDistributionEver.comfort() >= bestIndividualsAlive.get(0).comfort(), "Best individual ever not updating correctly");
-
         observationCount++;
     }
 }

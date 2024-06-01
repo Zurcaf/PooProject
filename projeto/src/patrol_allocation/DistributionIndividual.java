@@ -198,7 +198,6 @@ public class DistributionIndividual implements Individual<DistributionIndividual
      * Logs the death and removes the individual's events from the simulation.
      */
     public void onEpidemicDeath() {
-        patrol_allocation.Debug.log("Individual " + this.hashCode() + " was killed by an epidemic");
         sim.pec.removeEvent(deathEvent);
         sim.pec.removeEvent(reproductionEvent);
         sim.pec.removeEvent(mutationEvent);
