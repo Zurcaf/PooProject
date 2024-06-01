@@ -3,3 +3,4 @@
 *.vpp
 
 docs/
+*_output.txt
