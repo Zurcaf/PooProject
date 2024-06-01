@@ -67,6 +67,9 @@ public class PatrolSimulation {
         if (maxPopulation <= 0) {
             throw new IllegalArgumentException("The maximum population count must be a positive integer");
         }
+        if (initialPopulation > maxPopulation) {
+            throw new IllegalArgumentException("The initial population count must be less than or equal to the maximum population count");
+        }
         if (deathParam <= 0.0 || reproductionParam <= 0.0 || mutationParam <= 0.0) {
             throw new IllegalArgumentException("The death, reproduction and mutation parameters must all be positive integers");
         }
